@@ -20,8 +20,12 @@ export const listings = pgTable("listings", {
   hostSince: integer("host_since").notNull(),
   hostBio: text("host_bio"),
   superhost: boolean("superhost").default(false).notNull(),
-  pricePerNight: integer("price_per_night").notNull(), // Kenyan Shillings (KES)
+  pricePerNight: integer("price_per_night").notNull(), // Green/low season rate (KES)
+  peakPricePerNight: integer("peak_price_per_night").default(0).notNull(), // Peak-season rate (KES)
   cleaningFee: integer("cleaning_fee").default(0).notNull(),
+  checkInTime: text("check_in_time").default("2:00 PM").notNull(),
+  checkOutTime: text("check_out_time").default("10:00 AM").notNull(),
+  website: text("website"),
   locationName: text("location_name").notNull(), // park / reserve / area
     region: text("region").notNull(),
     county: text("county"),

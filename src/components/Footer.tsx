@@ -1,10 +1,22 @@
 import Link from "next/link";
 import { REGIONS } from "@/lib/constants";
+import Logo from "./Logo";
 
 export default function Footer() {
   const year = new Date().getFullYear();
   return (
     <footer className="mt-16 border-t-4 border-ember-600/80 bg-night text-sand-200">
+      <div className="border-b border-white/10">
+        <div className="mx-auto flex max-w-7xl items-center gap-2.5 px-6 py-6">
+          <Logo className="h-9 w-9 text-gold-300" />
+          <div>
+            <p className="font-display text-lg font-bold leading-tight text-sand-50">
+              Safari<span className="text-gold-300">Stay</span>
+            </p>
+            <p className="text-xs text-sand-400">Real stays. Real rates. Real Kenya seasons.</p>
+          </div>
+        </div>
+      </div>
       <div className="mx-auto grid max-w-7xl grid-cols-2 gap-8 px-6 py-12 md:grid-cols-4">
         <div>
           <h4 className="mb-3 text-sm font-bold uppercase tracking-wider text-gold-300">Support</h4>
@@ -48,7 +60,8 @@ export default function Footer() {
         <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-2 text-xs text-sand-400 sm:flex-row">
           <p>© {year} SafariStay — demo marketplace for the Kenyan safari market.</p>
           <p>
-            Stays are illustrative. Photography via Pexels contributors · Maps © OpenStreetMap contributors
+            Properties are real &amp; rates are published seasonal rates · Photography via Pexels · Weather © Open-Meteo · FX ©
+            ExchangeRate-API · Maps © OpenStreetMap contributors
           </p>
         </div>
       </div>

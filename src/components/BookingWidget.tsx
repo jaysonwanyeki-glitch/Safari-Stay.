@@ -1,12 +1,21 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { PublicListing } from "@/lib/data";
 import { SERVICE_FEE_RATE } from "@/lib/constants";
 import { formatKes } from "@/lib/format";
+import { SEASON_BLURB, SEASON_EMOJI, SEASON_LABEL, stayTotal } from "@/lib/seasons";
+import { formatUsd } from "@/lib/currency";
 import { CloseIcon, StarIcon } from "./icons";
 
 type Status = "idle" | "confirm" | "submitting" | "success" | "error";
+
+type Availability = {
+  booked: { checkIn: string; checkOut: string }[];
+  season: { key: "peak" | "shoulder" | "green"; label: string; emoji: string };
+  stats: { bookedThisWeek: number; bookedThisMonth: number };
+  usdPerKes: number;
+};
 
 function nightsBetween(a: string, b: string) {
   if (!a || !b) return 0;
@@ -16,25 +25,74 @@ function nightsBetween(a: string, b: string) {
   return Math.round((d2 - d1) / 86400000);
 }
 
+/** ISO dates compare lexicographically; treat checkout as exclusive. */
+function overlaps(aIn: string, aOut: string, bIn: string, bOut: string) {
+  return aIn < bOut && bIn < aOut;
+}
+
+function addDays(isoDate: string, days: number) {
+  const d = new Date(isoDate + "T00:00:00");
+  d.setDate(d.getDate() + days);
+  return d.toISOString().slice(0, 10);
+}
+
 export default function BookingWidget({ listing }: { listing: PublicListing }) {
   const today = new Date().toISOString().slice(0, 10);
   const [checkIn, setCheckIn] = useState("");
   const [checkOut, setCheckOut] = useState("");
-  const [guests, setGuests] = useState(1);
+  const [guests, setGuests] = useState(2);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState<Status>("idle");
   const [booking, setBooking] = useState<{ id: number; nights: number; total: number } | null>(null);
   const [error, setError] = useState("");
+  const [avail, setAvail] = useState<Availability | null>(null);
+
+  useEffect(() => {
+    let active = true;
+    fetch(`/api/availability?listingId=${listing.id}`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data: Availability | null) => {
+        if (active && data) setAvail(data);
+      })
+      .catch(() => undefined);
+    return () => {
+      active = false;
+    };
+  }, [listing.id]);
 
   const nights = nightsBetween(checkIn, checkOut);
-  const subtotal = listing.pricePerNight * nights;
+
+  // Live seasonal pricing: every night is priced per the real Kenya season model.
+  const subtotal = stayTotal(
+    { pricePerNight: listing.pricePerNight, peakPricePerNight: listing.peakPricePerNight },
+    checkIn,
+    checkOut,
+  );
   const cleaning = listing.cleaningFee;
   const service = Math.round(subtotal * SERVICE_FEE_RATE);
   const total = subtotal + cleaning + service;
 
-  const datesValid = nights > 0;
+  const clash = avail
+    ? avail.booked.find((b) => overlaps(checkIn, checkOut, b.checkIn, b.checkOut))
+    : undefined;
+  const datesValid = nights > 0 && !clash && checkOut > checkIn;
   const formValid = name.trim().length > 1 && /\S+@\S+\.\S+/.test(email);
+
+  const usdTotal = avail && avail.usdPerKes > 0 ? formatUsd(total / avail.usdPerKes) : null;
+
+  function suggestNext() {
+    if (!avail || avail.booked.length === 0) return;
+    const sorted = [...avail.booked].sort((a, b) => a.checkIn.localeCompare(b.checkIn));
+    let candidate = today;
+    for (const b of sorted) {
+      if (overlaps(candidate, addDays(candidate, 3), b.checkIn, b.checkOut)) {
+        candidate = b.checkOut;
+      }
+    }
+    return addDays(candidate, 1);
+  }
+  const suggestion = clash ? suggestNext() : null;
 
   async function confirm() {
     setStatus("submitting");
@@ -54,6 +112,11 @@ export default function BookingWidget({ listing }: { listing: PublicListing }) {
           totalKes: total,
         }),
       });
+      if (res.status === 409) {
+        setError("Those dates were just booked. Please choose other dates.");
+        setStatus("confirm");
+        return;
+      }
       if (!res.ok) throw new Error("Request failed");
       const data = await res.json();
       setBooking({ id: data.id, nights, total });
@@ -99,7 +162,7 @@ export default function BookingWidget({ listing }: { listing: PublicListing }) {
 
   return (
     <div className="rounded-2xl border border-sand-200 bg-white p-6 shadow-xl shadow-sand-300/30">
-      <div className="mb-4 flex items-baseline justify-between">
+      <div className="mb-3 flex items-baseline justify-between">
         <p>
           <span className="text-2xl font-bold">{formatKes(nightly)}</span>
           <span className="text-sand-700"> night</span>
@@ -110,6 +173,24 @@ export default function BookingWidget({ listing }: { listing: PublicListing }) {
         </span>
       </div>
 
+      {/* Live season + stats */}
+      {avail && (
+        <div className="mb-4 space-y-1.5 rounded-xl bg-sand-50 p-3 text-xs">
+          <p className="flex items-center gap-1.5 font-semibold text-ink">
+            <span>{SEASON_EMOJI[avail.season.key as keyof typeof SEASON_EMOJI]}</span>
+            {avail.season.label} rates apply now
+          </p>
+          <p className="text-sand-700">
+            {SEASON_BLURB[avail.season.key as keyof typeof SEASON_BLURB]}
+          </p>
+          {avail.stats.bookedThisWeek > 0 && (
+            <p className="font-semibold text-brand">
+              🔥 {avail.stats.bookedThisWeek} guest{avail.stats.bookedThisWeek > 1 ? "s" : ""} booked here this week
+            </p>
+          )}
+        </div>
+      )}
+
       <div className="grid grid-cols-2 overflow-hidden rounded-xl border border-sand-400">
         <label className="border-b border-r border-sand-400 p-3">
           <span className="text-[11px] font-bold uppercase tracking-wide">Check in</span>
@@ -117,7 +198,10 @@ export default function BookingWidget({ listing }: { listing: PublicListing }) {
             type="date"
             min={today}
             value={checkIn}
-            onChange={(e) => setCheckIn(e.target.value)}
+            onChange={(e) => {
+              setCheckIn(e.target.value);
+              if (checkOut && checkOut <= e.target.value) setCheckOut("");
+            }}
             className="block w-full bg-transparent text-sm outline-none"
           />
         </label>
@@ -148,24 +232,48 @@ export default function BookingWidget({ listing }: { listing: PublicListing }) {
         </label>
       </div>
 
-      {datesValid && (
+      <p className="mt-2 text-xs text-sand-700">
+        Check-in from <span className="font-semibold text-ink">{listing.checkInTime}</span> · Check-out by{" "}
+        <span className="font-semibold text-ink">{listing.checkOutTime}</span>
+      </p>
+
+      {clash && (
+        <p className="mt-3 rounded-lg bg-ember-50 px-3 py-2 text-sm font-semibold text-brand">
+          ⚠️ Those dates are already booked.
+          {suggestion && (
+            <button
+              onClick={() => {
+                setCheckIn(suggestion);
+                setCheckOut(addDays(suggestion, nights || 3));
+              }}
+              className="ml-1 underline"
+            >
+              Try {new Date(suggestion + "T00:00:00").toLocaleDateString("en-GB", { day: "numeric", month: "short" })}
+            </button>
+          )}
+        </p>
+      )}
+
+      {datesValid && !clash && (
         <dl className="mt-4 space-y-2 text-sm">
           <div className="flex justify-between">
             <dt className="text-sand-700">
-              {formatKes(nightly)} × {nights} night{nights > 1 ? "s" : ""}
+              {formatKes(subtotal / nights)} avg × {nights} night{nights > 1 ? "s" : ""}
             </dt>
             <dd>{formatKes(subtotal)}</dd>
           </div>
-          <div className="flex justify-between">
-            <dt className="text-sand-700">Cleaning fee</dt>
-            <dd>{formatKes(cleaning)}</dd>
-          </div>
+          {cleaning > 0 && (
+            <div className="flex justify-between">
+              <dt className="text-sand-700">Cleaning fee</dt>
+              <dd>{formatKes(cleaning)}</dd>
+            </div>
+          )}
           <div className="flex justify-between">
             <dt className="text-sand-700">SafariStay service fee</dt>
             <dd>{formatKes(service)}</dd>
           </div>
           <div className="flex justify-between border-t border-sand-200 pt-2 font-bold">
-            <dt>Total</dt>
+            <dt>Total{usdTotal ? <span className="ml-2 font-normal text-sand-700">≈ {usdTotal}</span> : null}</dt>
             <dd>{formatKes(total)}</dd>
           </div>
         </dl>
@@ -176,7 +284,7 @@ export default function BookingWidget({ listing }: { listing: PublicListing }) {
         onClick={() => setStatus("confirm")}
         className="brand-bg mt-5 w-full rounded-xl py-3 text-base font-bold text-white shadow-lg transition disabled:cursor-not-allowed disabled:opacity-50"
       >
-        {datesValid ? "Reserve" : "Select dates to reserve"}
+        {clash ? "Dates unavailable" : datesValid ? "Reserve" : "Select dates to reserve"}
       </button>
       <p className="mt-2 text-center text-xs text-sand-600">You won&apos;t be charged yet</p>
 
@@ -194,6 +302,7 @@ export default function BookingWidget({ listing }: { listing: PublicListing }) {
             </div>
             <p className="mb-3 text-sm text-sand-700">
               {nights} night{nights > 1 ? "s" : ""} at {listing.title} · {formatKes(total)}
+              {usdTotal ? ` (≈ ${usdTotal})` : ""}
             </p>
             <input
               placeholder="Full name"

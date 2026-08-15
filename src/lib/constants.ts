@@ -8,7 +8,9 @@ export type Category = {
 
 /** Primary filter chips shown in the category bar. */
 export const CATEGORIES: Category[] = [
-  { key: "all", label: "All homes", icon: "🌍" },
+  { key: "all", label: "All stays", icon: "🌍" },
+  { key: "safari_lodge", label: "Safari lodges", icon: "🦁" },
+  { key: "beach_resort", label: "Beach resorts", icon: "🏖️" },
   { key: "beach_villa", label: "Beach villas", icon: "🏝️" },
   { key: "apartment", label: "Apartments", icon: "🏢" },
   { key: "cottage", label: "Cottages", icon: "🏡" },
@@ -21,6 +23,8 @@ export const CATEGORIES: Category[] = [
 
 /** Property type -> friendly label. */
 export const PROPERTY_TYPE_LABELS: Record<string, string> = {
+  safari_lodge: "Safari lodge",
+  beach_resort: "Beach resort",
   tented_camp: "Tented camp",
   eco_camp: "Eco stay",
   bush_villa: "Bush home",
@@ -31,25 +35,27 @@ export const PROPERTY_TYPE_LABELS: Record<string, string> = {
   farm_stay: "Farm stay",
 };
 
-/** Airbnb-style place label, e.g. "Entire apartment" / "Private room in cottage". */
+/** Airbnb-style place label, e.g. "Entire apartment" / "Safari lodge suite". */
 export function placeLabel(roomType: string, propertyType: string): string {
   const t = PROPERTY_TYPE_LABELS[propertyType] ?? propertyType;
-  return roomType === "private"
-    ? `Private room in ${t.toLowerCase()}`
-    : `Entire ${t.toLowerCase()}`;
+  if (roomType === "private") return `Private room in ${t.toLowerCase()}`;
+  if (propertyType === "safari_lodge") return "Safari lodge suite";
+  if (propertyType === "beach_resort") return "Resort room";
+  if (propertyType === "tented_camp" || propertyType === "eco_camp") return `Luxury ${t.toLowerCase()} tent`;
+  return `Entire ${t.toLowerCase()}`;
 }
 
 /** Price-tier quick filters (Budget / Mid / Luxury). */
 export const PRICE_TIERS = [
-  { key: "budget", label: "Budget", icon: "💸", blurb: "Under KES 16,000 / night" },
-  { key: "mid", label: "Mid-range", icon: "💰", blurb: "KES 16,000 – 45,000" },
-  { key: "luxury", label: "Luxury", icon: "👑", blurb: "KES 45,000 and up" },
+  { key: "budget", label: "Budget", icon: "💸", blurb: "Under KES 20,000 / night" },
+  { key: "mid", label: "Mid-range", icon: "💰", blurb: "KES 20,000 – 60,000" },
+  { key: "luxury", label: "Luxury", icon: "👑", blurb: "KES 60,000 and up" },
 ] as const;
 
 /** Derive a price tier from a nightly KES rate. */
 export function tierForPrice(price: number): "budget" | "mid" | "luxury" {
-  if (price < 16000) return "budget";
-  if (price < 45000) return "mid";
+  if (price < 20000) return "budget";
+  if (price < 60000) return "mid";
   return "luxury";
 }
 
@@ -82,14 +88,14 @@ export const REGIONS: RegionInfo[] = [
   { name: "Nairobi", blurb: "A buzzing capital with a national park on its doorstep.", parks: ["Nairobi NP", "Karen", "Lang'ata"], image: px(33473218) },
 ];
 
-/** Popular Diani landmarks (links to ?q= search). */
+/** Real landmarks & regions (links to ?q= search). */
 export const DIANI_SPOTS = [
-  { name: "Kongo River", q: "Kongo River", blurb: "Tidal estuary & famous rope swing at Galu" },
-  { name: "Swahili Beach", q: "Swahili Beach", blurb: "Galu's golden resort strip" },
-  { name: "Galu Beach", q: "Galu Beach", blurb: "Kitesurfing & reef snorkelling" },
-  { name: "Tiwi Beach", q: "Tiwi Beach", blurb: "Quiet rock pools & calm tides" },
-  { name: "Shimba Hills", q: "Shimba Hills", blurb: "Coastal rainforest reserve inland" },
-  { name: "Chale Island", q: "Chale Island", blurb: "Sand-fringed forest island" },
+  { name: "Diani Beach", q: "Diani Beach", blurb: "White sands, reef & beach bars" },
+  { name: "Galu Beach", q: "Galu Beach", blurb: "Kitesurfing & barefoot shores" },
+  { name: "Watamu", q: "Watamu", blurb: "Marine-park bays & turtle season" },
+  { name: "Lamu Old Town", q: "Lamu", blurb: "UNESCO dhow-era alleys" },
+  { name: "Maasai Mara", q: "Maasai Mara", blurb: "Home of the Great Migration" },
+  { name: "Amboseli", q: "Amboseli", blurb: "Elephants under Kilimanjaro" },
 ];
 
 /** Amenity groupings shown on the listing detail page. */

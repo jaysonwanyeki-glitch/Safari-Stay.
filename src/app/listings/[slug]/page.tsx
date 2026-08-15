@@ -14,6 +14,9 @@ import {
   getNearbyListings,
   getReviewsForListing,
 } from "@/lib/data";
+import { getWeather } from "@/lib/weather";
+import { formatUsd, kesToUsd } from "@/lib/currency";
+import { SEASON_EMOJI, SEASON_LABEL, seasonForDate } from "@/lib/seasons";
 
 export const dynamic = "force-dynamic";
 
@@ -46,6 +49,12 @@ export default async function ListingDetailPage({
     getReviewsForListing(listing.id),
     getNearbyListings(listing, 4),
   ]);
+
+  const [weather, usdNightly] = await Promise.all([
+    getWeather(listing.latitude, listing.longitude),
+    kesToUsd(listing.pricePerNight),
+  ]);
+  const season = seasonForDate(new Date());
 
   const place = placeLabel(listing.roomType, listing.propertyType);
   const marker = {
@@ -113,6 +122,14 @@ export default async function ListingDetailPage({
                 🏆 Superhost
               </span>
             )}
+            <span className="rounded-full bg-sand-100 px-2 py-0.5 text-xs font-bold text-ink">
+              {SEASON_EMOJI[season]} {SEASON_LABEL[season]}
+            </span>
+            {usdNightly > 0 && (
+              <span className="rounded-full bg-gold-100 px-2 py-0.5 text-xs font-bold text-ink">
+                ≈ {formatUsd(usdNightly)}/night
+              </span>
+            )}
           </div>
           <div className="flex items-center gap-1">
             <button className="flex items-center gap-2 rounded-full px-3 py-2 text-sm font-bold underline hover:bg-sand-100">
@@ -173,10 +190,27 @@ export default async function ListingDetailPage({
           <div className="border-b border-sand-200 py-6">
             <p className="text-[15px] leading-relaxed text-sand-800">{listing.description}</p>
             <p className="mt-4 text-sm text-sand-600">
-              Base rate <span className="font-semibold text-ink">{formatKes(listing.pricePerNight)}</span> per
-              night · cleaning fee {formatKes(listing.cleaningFee)}.
+              Green-season rate{" "}
+              <span className="font-semibold text-ink">{formatKes(listing.pricePerNight)}</span> per night · peak season{" "}
+              <span className="font-semibold text-ink">{formatKes(listing.peakPricePerNight)}</span>
+              {listing.cleaningFee > 0 ? ` · cleaning fee ${formatKes(listing.cleaningFee)}` : ""}.
             </p>
           </div>
+
+          {/* Live weather */}
+          {weather && (
+            <div className="border-b border-sand-200 py-6">
+              <div className="flex items-center justify-between gap-4 rounded-2xl border border-sand-200 bg-white/70 p-4">
+                <div>
+                  <p className="text-sm font-bold">Live conditions at {listing.locationName}</p>
+                  <p className="mt-0.5 text-sm text-sand-700">
+                    {weather.icon} {weather.label} · {weather.humidity}% humidity · {weather.wind} km/h wind
+                  </p>
+                </div>
+                <p className="font-display text-4xl font-bold text-ink">{weather.temp}°</p>
+              </div>
+            </div>
+          )}
 
           {/* Amenities */}
           <div className="border-b border-sand-200 py-6">
@@ -222,6 +256,16 @@ export default async function ListingDetailPage({
           {listing.locationName}, {listing.region}, Kenya. The exact pin is shared once your booking is
           confirmed — many stays sit on private conservancy land.
         </p>
+        {listing.website && (
+          <a
+            href={listing.website}
+            target="_blank"
+            rel="noreferrer"
+            className="mb-4 inline-block text-sm font-semibold text-brand underline hover:text-brand-dark"
+          >
+            View official website ↗
+          </a>
+        )}
         <SingleMap point={marker} />
       </section>
 
@@ -286,8 +330,8 @@ export default async function ListingDetailPage({
           <div>
             <h3 className="mb-2 font-bold">House rules</h3>
             <ul className="space-y-1 text-sm text-sand-700">
-              <li>Check-in after 2:00 PM</li>
-              <li>Check-out by 10:00 AM</li>
+              <li>Check-in from {listing.checkInTime}</li>
+              <li>Check-out by {listing.checkOutTime}</li>
               <li>{listing.maxGuests} guests maximum</li>
               <li>No smoking indoors</li>
             </ul>

@@ -28,7 +28,11 @@ export type PublicListing = {
   hostBio: string | null;
   superhost: boolean;
   pricePerNight: number;
+  peakPricePerNight: number;
   cleaningFee: number;
+  checkInTime: string;
+  checkOutTime: string;
+  website: string | null;
   locationName: string;
   region: string;
   county: string | null;
@@ -99,7 +103,11 @@ function toPublic(row: ListingRow): PublicListing {
     hostBio: row.hostBio,
     superhost: row.superhost,
     pricePerNight: row.pricePerNight,
+    peakPricePerNight: row.peakPricePerNight,
     cleaningFee: row.cleaningFee,
+    checkInTime: row.checkInTime,
+    checkOutTime: row.checkOutTime,
+    website: row.website,
     locationName: row.locationName,
     region: row.region,
     county: row.county,

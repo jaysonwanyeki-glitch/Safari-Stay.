@@ -208,11 +208,11 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* Diani popular spots */}
+      {/* Popular spots */}
       <section className="mx-auto max-w-7xl px-6 py-12">
-        <h2 className="mb-1 text-2xl font-bold sm:text-3xl">Diani: stay near popular spots</h2>
+        <h2 className="font-display mb-1 text-2xl font-bold sm:text-3xl">Popular stays by landmark</h2>
         <p className="mb-6 text-sand-600">
-          Real Diani landmarks — find an Airbnb on the doorstep of each.
+          Quick links to real Kenyan icons — from Diani&apos;s sands to the Mara.
         </p>
         <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
           {DIANI_SPOTS.map((s) => (

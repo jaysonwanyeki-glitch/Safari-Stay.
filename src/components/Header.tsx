@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { REGIONS } from "@/lib/constants";
 import { GlobeIcon, MenuIcon, SearchIcon } from "./icons";
+import Logo from "./Logo";
 
 export default function Header() {
   const router = useRouter();
@@ -39,12 +40,10 @@ export default function Header() {
   return (
     <header className="sticky top-0 z-40 border-b border-sand-200 bg-sand-50/95 backdrop-blur">
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3 sm:px-6">
-        <Link href="/" className="flex shrink-0 items-center gap-2">
-          <span className="brand-bg grid h-9 w-9 place-items-center rounded-xl text-lg shadow-sm">
-            🦁
-          </span>
-          <span className="text-xl font-extrabold tracking-tight">
-            safari<span className="brand-gradient">stay</span>
+        <Link href="/" className="group flex shrink-0 items-center gap-2">
+          <Logo className="h-9 w-9 text-brand transition-transform group-hover:scale-105" />
+          <span className="font-display text-xl font-extrabold tracking-tight">
+            Safari<span className="brand-gradient">Stay</span>
           </span>
         </Link>
 
