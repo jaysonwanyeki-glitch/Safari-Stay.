@@ -43,7 +43,7 @@ export default function ListingCard({ listing }: { listing: PublicListing }) {
   return (
     <Link href={`/listings/${listing.slug}`} className="group block">
       <div
-        className="card-zoom relative aspect-square overflow-hidden rounded-2xl bg-slate-100"
+        className="card-zoom relative aspect-square overflow-hidden rounded-2xl bg-sand-100"
         onMouseEnter={start}
         onMouseLeave={stop}
       >
@@ -100,20 +100,20 @@ export default function ListingCard({ listing }: { listing: PublicListing }) {
             {listing.rating.toFixed(2)}
           </span>
         </div>
-        <p className="truncate text-sm text-slate-500">{listing.title}</p>
-        <p className="truncate text-sm capitalize text-slate-500">
+        <p className="truncate text-sm text-sand-600">{listing.title}</p>
+        <p className="truncate text-sm capitalize text-sand-600">
           {place} · {listing.county ?? listing.region}
         </p>
         {listing.landmark && (
           <p className="truncate text-sm font-semibold text-brand">📍 Near {listing.landmark}</p>
         )}
-        <p className="truncate text-sm text-slate-500">
+        <p className="truncate text-sm text-sand-600">
           {listing.bedrooms} bed{listing.bedrooms > 1 ? "s" : ""} · {listing.bathrooms} bath
           {listing.bathrooms > 1 ? "s" : ""}
         </p>
         <p className="mt-1.5 text-sm">
           <span className="font-bold text-ink">{formatKes(listing.pricePerNight)}</span>{" "}
-          <span className="text-slate-600">night</span>
+          <span className="text-sand-700">night</span>
         </p>
       </div>
     </Link>

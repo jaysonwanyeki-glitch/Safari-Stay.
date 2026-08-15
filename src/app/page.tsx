@@ -34,15 +34,36 @@ export default async function HomePage() {
             alt="Mount Kilimanjaro rising above the Kenyan plains"
             className="absolute inset-0 h-full w-full object-cover"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-black/20" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#160d05]/85 via-[#160d05]/30 to-[#160d05]/15" />
+          {/* Faded giraffe silhouette — safari feel */}
+          <div className="absolute right-[3%] top-1/2 hidden h-[62%] -translate-y-1/2 lg:block">
+            <svg
+              viewBox="0 0 220 300"
+              aria-hidden
+              fill="#ffffff"
+              className="animate-sway h-full w-auto opacity-20"
+            >
+              <rect x="42" y="230" width="10" height="60" rx="5" />
+              <rect x="60" y="234" width="10" height="56" rx="5" />
+              <rect x="112" y="234" width="10" height="56" rx="5" />
+              <rect x="130" y="230" width="10" height="60" rx="5" />
+              <ellipse cx="90" cy="240" rx="40" ry="22" />
+              <path d="M122 236 C 128 196 132 170 136 148 L 148 152 C 146 176 142 208 138 240 Z" />
+              <ellipse cx="146" cy="145" rx="13" ry="8" />
+              <ellipse cx="156" cy="147" rx="7" ry="6" />
+              <rect x="140" y="130" width="3" height="12" rx="1.5" />
+              <rect x="150" y="130" width="3" height="12" rx="1.5" />
+              <path d="M134 142 l-8 2 4 6 z" />
+            </svg>
+          </div>
         </div>
 
         <div className="absolute inset-x-0 bottom-0">
           <div className="mx-auto max-w-7xl px-6 pb-12 sm:pb-16">
-            <p className="text-sm font-bold uppercase tracking-[0.2em] text-rose-300">
+            <p className="text-sm font-bold uppercase tracking-[0.2em] text-gold-300">
               Kenya · Safari &amp; wilderness stays
             </p>
-            <h1 className="mt-3 max-w-3xl text-4xl font-extrabold leading-[1.05] text-white sm:text-6xl">
+            <h1 className="font-display mt-3 max-w-3xl text-4xl font-bold leading-[1.08] text-white sm:text-6xl">
               Find your place in the wild.
             </h1>
             <p className="mt-4 max-w-xl text-lg text-white/85">
@@ -89,7 +110,7 @@ export default async function HomePage() {
             <Link
               key={c.key}
               href={`/listings?type=${c.key}`}
-              className="flex shrink-0 flex-col items-center gap-1 rounded-2xl border border-slate-200 px-5 py-3 text-center text-xs font-semibold text-slate-700 transition hover:border-slate-400 hover:shadow-md"
+              className="flex shrink-0 flex-col items-center gap-1 rounded-2xl border border-sand-300 bg-white/70 px-5 py-3 text-center text-xs font-semibold text-ink/80 shadow-sm transition hover:border-brand hover:bg-white hover:shadow-lg"
             >
               <span className="text-2xl">{c.icon}</span>
               {c.label}
@@ -102,8 +123,8 @@ export default async function HomePage() {
       <section className="mx-auto max-w-7xl px-6 pb-4">
         <div className="mb-6 flex items-end justify-between">
           <div>
-            <h2 className="text-2xl font-bold sm:text-3xl">Featured wilderness stays</h2>
-            <p className="mt-1 text-slate-500">Top-rated homes &amp; hosted stays our travellers love.</p>
+            <h2 className="font-display text-2xl font-bold sm:text-3xl">Featured wilderness stays</h2>
+            <p className="mt-1 text-sand-600">Top-rated homes &amp; hosted stays our travellers love.</p>
           </div>
           <Link href="/listings?sort=rating" className="hidden shrink-0 font-semibold text-brand sm:block">
             See all →
@@ -119,17 +140,17 @@ export default async function HomePage() {
       {/* Stay for any budget */}
       <section className="mx-auto max-w-7xl px-6 py-10">
         <h2 className="mb-1 text-2xl font-bold sm:text-3xl">Stay for any budget</h2>
-        <p className="mb-6 text-slate-500">From backpacker bandas to private luxury villas.</p>
+        <p className="mb-6 text-sand-600">From backpacker bandas to private luxury villas.</p>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           {PRICE_TIERS.map((t) => (
             <Link
               key={t.key}
               href={`/listings?tier=${t.key}`}
-              className="group rounded-2xl border border-slate-200 p-6 transition hover:border-slate-400 hover:shadow-lg"
+              className="group rounded-2xl border border-sand-300 bg-white/80 p-6 shadow-sm transition hover:-translate-y-0.5 hover:border-brand hover:shadow-xl"
             >
               <div className="text-3xl">{t.icon}</div>
               <h3 className="mt-3 text-lg font-bold">{t.label} stays</h3>
-              <p className="mt-1 text-sm text-slate-600">{t.blurb}</p>
+              <p className="mt-1 text-sm text-sand-700">{t.blurb}</p>
               <p className="mt-3 text-sm font-semibold text-brand">
                 Browse {t.label.toLowerCase()} →
               </p>
@@ -178,7 +199,7 @@ export default async function HomePage() {
               <div className="absolute inset-x-0 bottom-0 p-4 text-white">
                 <h3 className="text-lg font-bold leading-tight">{r.name}</h3>
                 <p className="mt-0.5 line-clamp-2 text-xs text-white/80">{r.blurb}</p>
-                <p className="mt-1 text-xs font-semibold text-rose-200">
+                <p className="mt-1 text-xs font-semibold text-gold-200">
                   {regionCounts[r.name] ?? 0} stays
                 </p>
               </div>
@@ -190,7 +211,7 @@ export default async function HomePage() {
       {/* Diani popular spots */}
       <section className="mx-auto max-w-7xl px-6 py-12">
         <h2 className="mb-1 text-2xl font-bold sm:text-3xl">Diani: stay near popular spots</h2>
-        <p className="mb-6 text-slate-500">
+        <p className="mb-6 text-sand-600">
           Real Diani landmarks — find an Airbnb on the doorstep of each.
         </p>
         <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
@@ -198,7 +219,7 @@ export default async function HomePage() {
             <Link
               key={s.name}
               href={`/listings?q=${encodeURIComponent(s.q)}`}
-              className="flex items-end overflow-hidden rounded-2xl border border-slate-200 bg-gradient-to-br from-sky-500 to-cyan-600 p-5 text-white transition hover:shadow-lg"
+              className="flex items-end overflow-hidden rounded-2xl border border-sand-300/40 bg-gradient-to-br from-ember-500 to-brand-700 p-5 text-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-xl"
             >
               <div>
                 <h3 className="text-lg font-bold leading-tight">{s.name}</h3>
@@ -220,10 +241,10 @@ export default async function HomePage() {
               { icon: "🛡️", title: "Verified & flexible", body: "Real reviews, transparent KES pricing and free cancellation options on most stays." },
               { icon: "🌱", title: "Travel that gives back", body: "Every booking supports conservation fees and community tourism across Kenya." },
             ].map((v) => (
-              <div key={v.title} className="rounded-2xl border border-slate-200 bg-white p-6">
+              <div key={v.title} className="rounded-2xl border border-sand-200 bg-white/90 p-6 shadow-sm">
                 <div className="text-3xl">{v.icon}</div>
                 <h3 className="mt-3 font-bold">{v.title}</h3>
-                <p className="mt-1 text-sm text-slate-600">{v.body}</p>
+                <p className="mt-1 text-sm text-sand-700">{v.body}</p>
               </div>
             ))}
           </div>
@@ -234,7 +255,7 @@ export default async function HomePage() {
       <section className="brand-bg">
         <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-6 py-12 text-center text-white sm:flex-row sm:text-left">
           <div>
-            <h2 className="text-2xl font-bold sm:text-3xl">Host your home, villa or camp</h2>
+            <h2 className="font-display text-2xl font-bold sm:text-3xl">Host your home, villa or camp</h2>
             <p className="mt-1 text-white/85">Share your corner of Kenya with travellers from around the world.</p>
           </div>
           <Link

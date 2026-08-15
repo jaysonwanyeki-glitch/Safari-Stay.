@@ -56,8 +56,8 @@ export default async function ListingsPage({
   return (
     <div className="mx-auto max-w-7xl px-4 pb-24 sm:px-6">
       <div className="pt-6">
-        <h1 className="text-2xl font-bold sm:text-3xl">{heading}</h1>
-        <p className="mt-1 text-slate-500">
+        <h1 className="font-display text-2xl font-bold sm:text-3xl">{heading}</h1>
+        <p className="mt-1 text-sand-600">
           Beachfront villas, bush homes, cottages and hosted camps near Kenya&apos;s wildlife reserves.
         </p>
       </div>
@@ -67,10 +67,10 @@ export default async function ListingsPage({
       <div className="mt-6 grid grid-cols-1 gap-8 xl:grid-cols-[1fr_420px]">
         <div>
           {items.length === 0 ? (
-            <div className="grid place-items-center rounded-3xl border border-dashed border-slate-300 py-24 text-center">
+            <div className="grid place-items-center rounded-3xl border border-dashed border-sand-400 py-24 text-center">
               <div className="text-5xl">🦓</div>
               <h2 className="mt-3 text-xl font-bold">No stays match your filters</h2>
-              <p className="mt-1 text-slate-500">Try widening your search or clearing filters.</p>
+              <p className="mt-1 text-sand-600">Try widening your search or clearing filters.</p>
               <Link
                 href="/listings"
                 className="mt-4 rounded-full bg-ink px-6 py-2.5 text-sm font-bold text-white"

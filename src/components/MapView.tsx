@@ -52,7 +52,7 @@ export default function MapView({ points, selectedId, className = "" }: Props) {
       const isSel = p.id === selectedId;
       const html = isSel
         ? `<div style="background-image:linear-gradient(90deg,#e61e4d,#d70466)" class="grid h-10 w-10 place-items-center rounded-full text-base shadow-xl ring-2 ring-white">📍</div>`
-        : `<div class="px-2.5 py-1 rounded-full bg-white text-[11px] font-bold shadow-md border border-slate-200 hover:scale-110 transition">${formatKesShort(
+        : `<div class="px-2.5 py-1 rounded-full bg-white text-[11px] font-bold shadow-md border border-sand-300 hover:scale-110 transition">${formatKesShort(
             p.pricePerNight,
           )}</div>`;
       const icon = L.divIcon({

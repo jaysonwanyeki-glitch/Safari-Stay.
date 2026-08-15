@@ -1,13 +1,46 @@
 @import "tailwindcss";
 
 @theme {
-  --color-brand: #ff385c;
-  --color-brand-dark: #d70466;
-  --color-brand-700: #c1005a;
-  --color-ink: #222222;
-  --color-fog: #f7f7f7;
-  --font-sans: "Inter", "Plus Jakarta Sans", ui-sans-serif, system-ui, -apple-system,
-    "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  /* Safari lodge brand — terracotta & ember */
+  --color-brand: #c4572e;
+  --color-brand-dark: #a3431f;
+  --color-brand-700: #82341a;
+
+  /* Warm ink (replaces slate-black for a warmer feel) */
+  --color-ink: #2a2118;
+  --color-fog: #f4eddf;
+
+  /* Savanna sand scale */
+  --color-sand-50: #fbf7ee;
+  --color-sand-100: #f5eddc;
+  --color-sand-200: #eadfc6;
+  --color-sand-300: #dccba6;
+  --color-sand-400: #c8b185;
+  --color-sand-500: #ab8f62;
+  --color-sand-600: #8a7950;
+  --color-sand-700: #6e5f3e;
+  --color-sand-800: #4f442c;
+
+  /* Ember (terracotta) tints */
+  --color-ember-50: #fbeede;
+  --color-ember-100: #f6dcc2;
+  --color-ember-500: #c4572e;
+  --color-ember-600: #a3431f;
+
+  /* Sunset gold */
+  --color-gold-100: #fbeccf;
+  --color-gold-200: #f3d8a0;
+  --color-gold-300: #edc477;
+  --color-gold-400: #e3a94f;
+
+  --color-khaki-500: #8b7b52;
+
+  /* Dark lodge brown (footer / overlays) */
+  --color-night: #231a10;
+
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system, "Segoe UI",
+    Roboto, Helvetica, Arial, sans-serif;
+  --font-display: var(--font-fraunces), Georgia, "Times New Roman", serif;
 }
 
 html {
@@ -17,21 +50,26 @@ html {
 body {
   font-family: var(--font-sans);
   color: var(--color-ink);
-  background-color: #ffffff;
+  background-color: var(--color-sand-50);
+  background-image: linear-gradient(180deg, #fbf7ee 0%, #f6eeda 60%, #efe1c6 100%);
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }
 
-/* Airbnb-style brand gradient text */
+::selection {
+  background-color: rgba(196, 87, 46, 0.18);
+}
+
+/* Safari-lodge brand gradient text (terracotta → sunset gold) */
 .brand-gradient {
-  background-image: linear-gradient(90deg, #bd1e59, #ff385c 45%, #ff5a5f);
+  background-image: linear-gradient(90deg, #b4491f, #c4572e 45%, #e3a94f);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
 }
 
 .brand-bg {
-  background-image: linear-gradient(90deg, #e61e4d 0%, #e31c5f 50%, #d70466 100%);
+  background-image: linear-gradient(135deg, #c4572e 0%, #a3431f 55%, #82341a 100%);
 }
 
 /* Hide scrollbars on the horizontal category bar */
@@ -73,4 +111,18 @@ body {
 }
 .card-zoom:hover img {
   transform: scale(1.05);
+}
+
+/* Gentle drift for the hero animal silhouette */
+@keyframes sway {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-6px) rotate(0.5deg);
+  }
+}
+.animate-sway {
+  animation: sway 7s ease-in-out infinite;
 }

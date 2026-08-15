@@ -55,7 +55,7 @@ export default function Gallery({ images, title }: { images: string[]; title: st
         <div className="col-span-4 mt-3 flex justify-center sm:col-span-4 sm:mt-0 sm:block sm:justify-end">
           <button
             onClick={() => { setActive(0); setOpen(true); }}
-            className="rounded-xl border border-slate-800 px-4 py-2 text-sm font-bold shadow-sm hover:bg-slate-800 hover:text-white"
+            className="rounded-xl border border-ink px-4 py-2 text-sm font-bold shadow-sm hover:bg-ink hover:text-white"
           >
             📷 Show all photos
           </button>

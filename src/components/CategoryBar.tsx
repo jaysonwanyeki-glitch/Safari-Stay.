@@ -21,7 +21,7 @@ export default function CategoryBar({ active, onSelect, className = "" }: Props)
               className={`flex flex-col items-center gap-1 border-b-2 px-3 pb-3 pt-1 text-xs font-semibold transition-colors ${
                 isActive
                   ? "border-ink text-ink"
-                  : "border-transparent text-slate-500 hover:text-ink"
+                  : "border-transparent text-sand-700 hover:text-ink"
               }`}
             >
               <span className="text-2xl leading-none">{c.icon}</span>

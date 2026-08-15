@@ -37,7 +37,7 @@ export default function Header() {
   }
 
   return (
-    <header className="sticky top-0 z-40 border-b border-slate-200 bg-white/95 backdrop-blur">
+    <header className="sticky top-0 z-40 border-b border-sand-200 bg-sand-50/95 backdrop-blur">
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3 sm:px-6">
         <Link href="/" className="flex shrink-0 items-center gap-2">
           <span className="brand-bg grid h-9 w-9 place-items-center rounded-xl text-lg shadow-sm">
@@ -54,15 +54,15 @@ export default function Header() {
               setOpen(true);
               setTab("where");
             }}
-            className="mx-auto flex w-full items-center gap-1 rounded-full border border-slate-200 bg-white py-2 pl-6 pr-2 shadow-sm transition hover:shadow-md"
+            className="mx-auto flex w-full items-center gap-1 rounded-full border border-sand-300 bg-white py-2 pl-6 pr-2 shadow-sm transition hover:border-ember-500/40 hover:shadow-md"
           >
             <span className="text-sm font-medium">{region || "Anywhere"}</span>
-            <span className="mx-2 h-5 w-px bg-slate-200" />
-            <span className="text-sm font-medium text-slate-500">
+            <span className="mx-2 h-5 w-px bg-sand-200" />
+            <span className="text-sm font-medium text-sand-700">
               {checkIn && checkOut ? `${checkIn} – ${checkOut}` : "Any week"}
             </span>
-            <span className="mx-2 h-5 w-px bg-slate-200" />
-            <span className="text-sm font-medium text-slate-500">
+            <span className="mx-2 h-5 w-px bg-sand-200" />
+            <span className="text-sm font-medium text-sand-700">
               {guests > 0 ? `${guests} guest${guests > 1 ? "s" : ""}` : "Add guests"}
             </span>
             <span className="brand-bg ml-auto grid h-8 w-8 place-items-center rounded-full text-white">
@@ -71,14 +71,14 @@ export default function Header() {
           </button>
 
           {open && (
-            <div className="absolute left-1/2 top-14 z-50 w-[min(92vw,560px)] -translate-x-1/2 rounded-3xl border border-slate-200 bg-white p-5 shadow-2xl">
+            <div className="absolute left-1/2 top-14 z-50 w-[min(92vw,560px)] -translate-x-1/2 rounded-3xl border border-sand-300 bg-white p-5 shadow-2xl">
               <div className="mb-4 flex gap-2 text-sm">
                 {([["where", "Where"], ["when", "When"], ["who", "Who"]] as const).map(([k, label]) => (
                   <button
                     key={k}
                     onClick={() => setTab(k)}
                     className={`rounded-full px-3 py-1.5 font-semibold transition ${
-                      tab === k ? "bg-slate-900 text-white" : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+                      tab === k ? "bg-ink text-white" : "bg-sand-100 text-sand-800 hover:bg-sand-200"
                     }`}
                   >
                     {label}
@@ -91,7 +91,7 @@ export default function Header() {
                   <button
                     onClick={() => setRegion("")}
                     className={`rounded-xl border px-3 py-2 text-left text-sm ${
-                      region === "" ? "border-brand bg-rose-50" : "border-slate-200 hover:border-slate-400"
+                      region === "" ? "border-brand bg-ember-50" : "border-sand-300 hover:border-brand"
                     }`}
                   >
                     🌍 Anywhere in Kenya
@@ -101,7 +101,7 @@ export default function Header() {
                       key={r.name}
                       onClick={() => setRegion(r.name)}
                       className={`rounded-xl border px-3 py-2 text-left text-sm ${
-                        region === r.name ? "border-brand bg-rose-50" : "border-slate-200 hover:border-slate-400"
+                        region === r.name ? "border-brand bg-ember-50" : "border-sand-300 hover:border-brand"
                       }`}
                     >
                       {r.name}
@@ -118,7 +118,7 @@ export default function Header() {
                       type="date"
                       value={checkIn}
                       onChange={(e) => setCheckIn(e.target.value)}
-                      className="w-full rounded-xl border border-slate-200 px-3 py-2 outline-none focus:border-brand"
+                      className="w-full rounded-xl border border-sand-300 px-3 py-2 outline-none focus:border-brand"
                     />
                   </label>
                   <label className="text-sm">
@@ -127,22 +127,22 @@ export default function Header() {
                       type="date"
                       value={checkOut}
                       onChange={(e) => setCheckOut(e.target.value)}
-                      className="w-full rounded-xl border border-slate-200 px-3 py-2 outline-none focus:border-brand"
+                      className="w-full rounded-xl border border-sand-300 px-3 py-2 outline-none focus:border-brand"
                     />
                   </label>
                 </div>
               )}
 
               {tab === "who" && (
-                <div className="flex items-center justify-between rounded-xl border border-slate-200 px-4 py-3">
+                <div className="flex items-center justify-between rounded-xl border border-sand-300 px-4 py-3">
                   <div>
                     <p className="text-sm font-semibold">Guests</p>
-                    <p className="text-xs text-slate-500">Adults, children & infants</p>
+                    <p className="text-xs text-sand-600">Adults, children & infants</p>
                   </div>
                   <div className="flex items-center gap-3">
                     <button
                       onClick={() => setGuests((g) => Math.max(0, g - 1))}
-                      className="grid h-8 w-8 place-items-center rounded-full border border-slate-300 disabled:opacity-40"
+                      className="grid h-8 w-8 place-items-center rounded-full border border-sand-400 disabled:opacity-40"
                       disabled={guests <= 0}
                     >
                       –
@@ -150,7 +150,7 @@ export default function Header() {
                     <span className="w-6 text-center font-semibold">{guests}</span>
                     <button
                       onClick={() => setGuests((g) => Math.min(16, g + 1))}
-                      className="grid h-8 w-8 place-items-center rounded-full border border-slate-300"
+                      className="grid h-8 w-8 place-items-center rounded-full border border-sand-400"
                     >
                       +
                     </button>
@@ -178,17 +178,17 @@ export default function Header() {
           )}
         </div>
 
-        <nav className="hidden items-center gap-1 text-sm font-semibold text-slate-700 md:flex">
-          <Link href="/listings" className="rounded-full px-3 py-2 hover:bg-slate-100">
+        <nav className="hidden items-center gap-1 text-sm font-semibold text-ink/80 md:flex">
+          <Link href="/listings" className="rounded-full px-3 py-2 hover:bg-sand-100">
             Explore stays
           </Link>
-          <Link href="/listings?region=Maasai+Mara" className="rounded-full px-3 py-2 hover:bg-slate-100">
+          <Link href="/listings?region=Maasai+Mara" className="rounded-full px-3 py-2 hover:bg-sand-100">
             Maasai Mara
           </Link>
-          <Link href="/listings?q=Diani" className="rounded-full px-3 py-2 hover:bg-slate-100">
+          <Link href="/listings?q=Diani" className="rounded-full px-3 py-2 hover:bg-sand-100">
             Diani Beach
           </Link>
-          <button className="flex items-center gap-2 rounded-full border border-slate-200 py-2 pl-3 pr-1 hover:shadow-md">
+          <button className="flex items-center gap-2 rounded-full border border-sand-300 py-2 pl-3 pr-1 hover:shadow-md">
             <GlobeIcon className="h-4 w-4" />
             <MenuIcon className="h-4 w-4" />
             <span className="brand-bg grid h-7 w-7 place-items-center rounded-full text-xs text-white">A</span>

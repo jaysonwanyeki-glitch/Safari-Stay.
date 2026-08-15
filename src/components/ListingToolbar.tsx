@@ -53,7 +53,7 @@ export default function ListingToolbar({ params, count }: { params: Params; coun
   const tierTabs = [{ key: "", label: "All prices", icon: "🏷️" }, ...PRICE_TIERS];
 
   return (
-    <div className="sticky top-[64px] z-30 -mx-4 border-b border-slate-200 bg-white px-4 sm:-mx-6 sm:px-6">
+    <div className="sticky top-[64px] z-30 -mx-4 border-b border-sand-200 bg-sand-50/95 px-4 backdrop-blur sm:-mx-6 sm:px-6">
       <div className="flex items-center justify-between gap-3 pt-3">
         <CategoryBar
           active={activeType}
@@ -62,7 +62,7 @@ export default function ListingToolbar({ params, count }: { params: Params; coun
         <div className="flex shrink-0 items-center gap-2 pb-3">
           <button
             onClick={() => setFilters(true)}
-            className="flex items-center gap-2 rounded-xl border border-slate-300 px-3 py-2 text-sm font-semibold hover:border-slate-800"
+            className="flex items-center gap-2 rounded-xl border border-sand-400 px-3 py-2 text-sm font-semibold hover:border-ink"
           >
             <span>⚙️</span>
             <span className="hidden sm:inline">Filters</span>
@@ -75,7 +75,7 @@ export default function ListingToolbar({ params, count }: { params: Params; coun
           <select
             value={params.sort ?? "recommended"}
             onChange={(e) => pushOne("sort", e.target.value)}
-            className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm font-semibold outline-none"
+            className="rounded-xl border border-sand-400 bg-white px-3 py-2 text-sm font-semibold outline-none"
           >
             {SORTS.map((s) => (
               <option key={s.value} value={s.value}>
@@ -95,8 +95,8 @@ export default function ListingToolbar({ params, count }: { params: Params; coun
               onClick={() => pushOne("tier", t.key)}
               className={`flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-bold transition ${
                 active
-                  ? "border-brand bg-rose-50 text-brand"
-                  : "border-slate-300 text-slate-600 hover:border-slate-400"
+                  ? "border-brand bg-ember-50 text-brand"
+                  : "border-sand-400 text-sand-800 hover:border-brand"
               }`}
             >
               <span>{t.icon}</span>
@@ -106,7 +106,7 @@ export default function ListingToolbar({ params, count }: { params: Params; coun
         })}
       </div>
 
-      <p className="pb-2 text-sm text-slate-500">
+      <p className="pb-2 text-sm text-sand-700">
         {count} {count === 1 ? "stay" : "stays"}
         {fRegion ? ` in ${fRegion}` : " across Kenya"}
         {fTier ? ` · ${TIER_LABEL[fTier]}` : ""}
@@ -121,7 +121,7 @@ export default function ListingToolbar({ params, count }: { params: Params; coun
             <select
               id="filter-region"
               defaultValue={fRegion}
-              className="mb-4 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm"
+              className="mb-4 w-full rounded-xl border border-sand-400 px-3 py-2 text-sm"
             >
               <option value="">All regions</option>
               {REGIONS.map((r) => (
@@ -135,7 +135,7 @@ export default function ListingToolbar({ params, count }: { params: Params; coun
             <select
               id="filter-tier"
               defaultValue={fTier}
-              className="mb-4 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm"
+              className="mb-4 w-full rounded-xl border border-sand-400 px-3 py-2 text-sm"
             >
               <option value="">Any tier</option>
               {PRICE_TIERS.map((t) => (
@@ -152,14 +152,14 @@ export default function ListingToolbar({ params, count }: { params: Params; coun
                 type="number"
                 placeholder="Min"
                 defaultValue={fMin}
-                className="rounded-xl border border-slate-300 px-3 py-2 text-sm"
+                className="rounded-xl border border-sand-400 px-3 py-2 text-sm"
               />
               <input
                 id="filter-max"
                 type="number"
                 placeholder="Max"
                 defaultValue={fMax}
-                className="rounded-xl border border-slate-300 px-3 py-2 text-sm"
+                className="rounded-xl border border-sand-400 px-3 py-2 text-sm"
               />
             </div>
 
@@ -170,7 +170,7 @@ export default function ListingToolbar({ params, count }: { params: Params; coun
               min={0}
               defaultValue={fGuests || ""}
               placeholder="e.g. 2"
-              className="mb-6 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm"
+              className="mb-6 w-full rounded-xl border border-sand-400 px-3 py-2 text-sm"
             />
 
             <div className="flex justify-between">

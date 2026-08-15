@@ -98,11 +98,11 @@ export default function BookingWidget({ listing }: { listing: PublicListing }) {
   }
 
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-xl">
+    <div className="rounded-2xl border border-sand-200 bg-white p-6 shadow-xl shadow-sand-300/30">
       <div className="mb-4 flex items-baseline justify-between">
         <p>
           <span className="text-2xl font-bold">{formatKes(nightly)}</span>
-          <span className="text-slate-600"> night</span>
+          <span className="text-sand-700"> night</span>
         </p>
         <span className="flex items-center gap-1 text-sm">
           <StarIcon className="h-4 w-4" />
@@ -110,8 +110,8 @@ export default function BookingWidget({ listing }: { listing: PublicListing }) {
         </span>
       </div>
 
-      <div className="grid grid-cols-2 overflow-hidden rounded-xl border border-slate-300">
-        <label className="border-b border-r border-slate-300 p-3">
+      <div className="grid grid-cols-2 overflow-hidden rounded-xl border border-sand-400">
+        <label className="border-b border-r border-sand-400 p-3">
           <span className="text-[11px] font-bold uppercase tracking-wide">Check in</span>
           <input
             type="date"
@@ -121,7 +121,7 @@ export default function BookingWidget({ listing }: { listing: PublicListing }) {
             className="block w-full bg-transparent text-sm outline-none"
           />
         </label>
-        <label className="border-b border-slate-300 p-3">
+        <label className="border-b border-sand-400 p-3">
           <span className="text-[11px] font-bold uppercase tracking-wide">Check out</span>
           <input
             type="date"
@@ -151,20 +151,20 @@ export default function BookingWidget({ listing }: { listing: PublicListing }) {
       {datesValid && (
         <dl className="mt-4 space-y-2 text-sm">
           <div className="flex justify-between">
-            <dt className="text-slate-600">
+            <dt className="text-sand-700">
               {formatKes(nightly)} × {nights} night{nights > 1 ? "s" : ""}
             </dt>
             <dd>{formatKes(subtotal)}</dd>
           </div>
           <div className="flex justify-between">
-            <dt className="text-slate-600">Cleaning fee</dt>
+            <dt className="text-sand-700">Cleaning fee</dt>
             <dd>{formatKes(cleaning)}</dd>
           </div>
           <div className="flex justify-between">
-            <dt className="text-slate-600">SafariStay service fee</dt>
+            <dt className="text-sand-700">SafariStay service fee</dt>
             <dd>{formatKes(service)}</dd>
           </div>
-          <div className="flex justify-between border-t border-slate-200 pt-2 font-bold">
+          <div className="flex justify-between border-t border-sand-200 pt-2 font-bold">
             <dt>Total</dt>
             <dd>{formatKes(total)}</dd>
           </div>
@@ -178,7 +178,7 @@ export default function BookingWidget({ listing }: { listing: PublicListing }) {
       >
         {datesValid ? "Reserve" : "Select dates to reserve"}
       </button>
-      <p className="mt-2 text-center text-xs text-slate-500">You won&apos;t be charged yet</p>
+      <p className="mt-2 text-center text-xs text-sand-600">You won&apos;t be charged yet</p>
 
       {(status === "confirm" || status === "submitting") && (
         <div className="fixed inset-0 z-[70] grid place-items-center bg-black/50 p-4" onClick={() => status !== "submitting" && setStatus("idle")}>
@@ -188,25 +188,25 @@ export default function BookingWidget({ listing }: { listing: PublicListing }) {
           >
             <div className="mb-3 flex items-center justify-between">
               <h3 className="text-lg font-bold">Confirm & reserve</h3>
-              <button onClick={() => setStatus("idle")} className="grid h-8 w-8 place-items-center rounded-full hover:bg-slate-100">
+              <button onClick={() => setStatus("idle")} className="grid h-8 w-8 place-items-center rounded-full hover:bg-sand-100">
                 <CloseIcon className="h-4 w-4" />
               </button>
             </div>
-            <p className="mb-3 text-sm text-slate-600">
+            <p className="mb-3 text-sm text-sand-700">
               {nights} night{nights > 1 ? "s" : ""} at {listing.title} · {formatKes(total)}
             </p>
             <input
               placeholder="Full name"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="mb-2 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm outline-none focus:border-brand"
+              className="mb-2 w-full rounded-xl border border-sand-400 px-3 py-2 text-sm outline-none focus:border-brand"
             />
             <input
               type="email"
               placeholder="Email address"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="mb-3 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm outline-none focus:border-brand"
+              className="mb-3 w-full rounded-xl border border-sand-400 px-3 py-2 text-sm outline-none focus:border-brand"
             />
             {error && <p className="mb-2 text-sm text-brand">{error}</p>}
             <button
