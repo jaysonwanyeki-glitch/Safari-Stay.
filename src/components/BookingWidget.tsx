@@ -7,6 +7,7 @@ import { SERVICE_FEE_RATE } from "@/lib/constants";
 import { bookingRef, formatKes } from "@/lib/format";
 import { SEASON_BLURB, SEASON_EMOJI, SEASON_LABEL, stayTotal } from "@/lib/seasons";
 import { formatUsd } from "@/lib/currency";
+import { PICK_CHECKIN_EVENT, type PickCheckinDetail } from "@/lib/events";
 import { CloseIcon, StarIcon } from "./icons";
 
 type Status = "idle" | "confirm" | "submitting" | "success" | "error";
@@ -60,6 +61,26 @@ export default function BookingWidget({ listing }: { listing: PublicListing }) {
     return () => {
       active = false;
     };
+  }, [listing.id]);
+
+  // A day tapped in the availability strip becomes the check-in date.
+  useEffect(() => {
+    function onPick(e: Event) {
+      const detail = (e as CustomEvent<PickCheckinDetail>).detail;
+      if (!detail?.date || detail.listingId !== listing.id) return;
+      setCheckIn(detail.date);
+      setCheckOut((out) => (out && out <= detail.date ? "" : out));
+      // Bring the widget into view if it's off-screen (e.g. on mobile).
+      const el = document.getElementById("booking-widget");
+      if (el) {
+        const rect = el.getBoundingClientRect();
+        if (rect.top < 0 || rect.bottom > window.innerHeight) {
+          el.scrollIntoView({ behavior: "smooth", block: "nearest" });
+        }
+      }
+    }
+    window.addEventListener(PICK_CHECKIN_EVENT, onPick);
+    return () => window.removeEventListener(PICK_CHECKIN_EVENT, onPick);
   }, [listing.id]);
 
   const nights = nightsBetween(checkIn, checkOut);
@@ -168,7 +189,7 @@ export default function BookingWidget({ listing }: { listing: PublicListing }) {
   }
 
   return (
-    <div className="rounded-2xl border border-sand-200 bg-white p-6 shadow-xl shadow-sand-300/30">
+    <div id="booking-widget" className="rounded-2xl border border-sand-200 bg-white p-6 shadow-xl shadow-sand-300/30">
       <div className="mb-3 flex items-baseline justify-between">
         <p>
           <span className="text-2xl font-bold">{formatKes(nightly)}</span>

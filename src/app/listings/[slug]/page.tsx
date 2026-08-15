@@ -245,7 +245,7 @@ export default async function ListingDetailPage({
             </p>
           </div>
           <div className="mt-6">
-            <AvailabilityStrip ranges={bookedRanges} />
+            <AvailabilityStrip ranges={bookedRanges} listingId={listing.id} />
           </div>
         </div>
       </div>

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import type { BookedRange } from "@/lib/data";
+import { PICK_CHECKIN_EVENT, type PickCheckinDetail } from "@/lib/events";
 
 const WEEKDAYS = ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"];
 
@@ -14,7 +15,13 @@ function localIso(d: Date) {
  * which nights are already taken (from real bookings). Guests can scan ahead
  * with next/prev month buttons; clicking the month label returns to today.
  */
-export default function AvailabilityStrip({ ranges }: { ranges: BookedRange[] }) {
+export default function AvailabilityStrip({
+  ranges,
+  listingId,
+}: {
+  ranges: BookedRange[];
+  listingId: number;
+}) {
   const [offset, setOffset] = useState(0);
 
   const now = new Date();
@@ -97,15 +104,30 @@ export default function AvailabilityStrip({ ranges }: { ranges: BookedRange[] })
             ? "bg-brand text-white"
             : past
               ? "bg-sand-100/60 text-sand-400"
-              : "bg-sand-50 text-ink hover:bg-sand-200";
-          return (
-            <div
+              : "bg-sand-50 text-ink";
+          const base = `grid h-8 place-items-center rounded-lg text-xs font-semibold ${cell} ${
+            isToday ? "ring-2 ring-brand ring-offset-1" : ""
+          }`;
+          const clickable = !booked && !past;
+          return clickable ? (
+            <button
               key={day}
-              title={booked ? "Booked" : past ? "Past" : "Available"}
-              className={`grid h-8 place-items-center rounded-lg text-xs font-semibold ${cell} ${
-                isToday ? "ring-2 ring-brand ring-offset-1" : ""
-              }`}
+              type="button"
+              onClick={() =>
+                window.dispatchEvent(
+                  new CustomEvent<PickCheckinDetail>(PICK_CHECKIN_EVENT, {
+                    detail: { date: iso, listingId },
+                  }),
+                )
+              }
+              aria-label={`Select ${iso} as check-in`}
+              title="Set as check-in"
+              className={`${base} cursor-pointer transition hover:bg-sand-200 hover:ring-2 hover:ring-brand/40`}
             >
+              {day}
+            </button>
+          ) : (
+            <div key={day} title={booked ? "Booked" : "Past"} className={base}>
               {day}
             </div>
           );
@@ -126,6 +148,10 @@ export default function AvailabilityStrip({ ranges }: { ranges: BookedRange[] })
           {availableNights} nights {offset === 0 ? "free from today" : "free"}
         </span>
       </div>
+
+      <p className="mt-2 text-[11px] text-sand-600">
+        💡 Tap any available day to set it as your check-in.
+      </p>
     </div>
   );
 }
