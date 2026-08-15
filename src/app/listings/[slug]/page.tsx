@@ -1,0 +1,326 @@
+import Link from "next/link";
+import { notFound } from "next/navigation";
+import type { Metadata } from "next";
+import Gallery from "@/components/Gallery";
+import BookingWidget from "@/components/BookingWidget";
+import SingleMap from "@/components/SingleMap";
+import ListingCard from "@/components/ListingCard";
+import WishlistButton from "@/components/WishlistButton";
+import { MapPinIcon, ShareIcon, StarIcon } from "@/components/icons";
+import { AMENITY_GROUPS, placeLabel } from "@/lib/constants";
+import { formatKes } from "@/lib/format";
+import {
+  getListingBySlug,
+  getNearbyListings,
+  getReviewsForListing,
+} from "@/lib/data";
+
+export const dynamic = "force-dynamic";
+
+type Params = { slug: string };
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<Params>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const listing = await getListingBySlug(slug);
+  if (!listing) return { title: "Stay not found · SafariStay" };
+  return {
+    title: `${listing.title} · ${listing.locationName} · SafariStay`,
+    description: listing.description.slice(0, 160),
+  };
+}
+
+export default async function ListingDetailPage({
+  params,
+}: {
+  params: Promise<Params>;
+}) {
+  const { slug } = await params;
+  const listing = await getListingBySlug(slug);
+  if (!listing) notFound();
+
+  const [reviews, nearby] = await Promise.all([
+    getReviewsForListing(listing.id),
+    getNearbyListings(listing, 4),
+  ]);
+
+  const place = placeLabel(listing.roomType, listing.propertyType);
+  const marker = {
+    id: listing.id,
+    slug: listing.slug,
+    title: listing.title,
+    pricePerNight: listing.pricePerNight,
+    latitude: listing.latitude,
+    longitude: listing.longitude,
+  };
+
+  // Plausible rating distribution derived from the average.
+  const five = Math.min(95, Math.round((listing.rating - 4) * 100));
+  const rest = 100 - five;
+  const four = Math.round(rest * 0.7);
+  const three = Math.round(rest * 0.2);
+  const two = Math.round(rest * 0.07);
+  const one = Math.max(0, rest - four - three - two);
+  const dist = [
+    { stars: 5, pct: five },
+    { stars: 4, pct: four },
+    { stars: 3, pct: three },
+    { stars: 2, pct: two },
+    { stars: 1, pct: one },
+  ];
+
+  const amenityGroups = AMENITY_GROUPS.map((g) => ({
+    ...g,
+    items: listing.amenities.filter((a) => g.match.test(a)),
+  })).filter((g) => g.items.length > 0);
+
+  return (
+    <div className="mx-auto max-w-7xl px-4 pb-16 pt-6 sm:px-6">
+      {/* Breadcrumb */}
+      <nav className="mb-3 flex items-center gap-1.5 text-sm text-slate-500">
+        <Link href="/" className="hover:underline">
+          Home
+        </Link>
+        <span>›</span>
+        <Link href={`/listings?region=${encodeURIComponent(listing.region)}`} className="hover:underline">
+          {listing.region}
+        </Link>
+        <span>›</span>
+        <span className="truncate text-slate-700">{listing.title}</span>
+      </nav>
+
+      {/* Title block */}
+      <div className="flex flex-col gap-3 border-b border-slate-200 pb-5">
+        <h1 className="text-2xl font-bold leading-tight sm:text-3xl">{listing.title}</h1>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
+            <span className="flex items-center gap-1 font-semibold">
+              <StarIcon className="h-4 w-4" />
+              {listing.rating.toFixed(2)}
+            </span>
+            <span>·</span>
+            <span className="font-semibold underline">{listing.reviewsCount} reviews</span>
+            <span>·</span>
+            <span className="flex items-center gap-1 text-slate-600">
+              <MapPinIcon className="h-4 w-4" />
+              {listing.locationName}, {listing.county ?? listing.region}
+            </span>
+            {listing.superhost && (
+              <span className="rounded-full bg-rose-50 px-2 py-0.5 text-xs font-bold text-brand">
+                🏆 Superhost
+              </span>
+            )}
+          </div>
+          <div className="flex items-center gap-1">
+            <button className="flex items-center gap-2 rounded-full px-3 py-2 text-sm font-bold underline hover:bg-slate-100">
+              <ShareIcon className="h-4 w-4" /> Share
+            </button>
+            <WishlistButton id={listing.id} label />
+          </div>
+        </div>
+      </div>
+
+      <Gallery images={listing.imageUrls} title={listing.title} />
+
+      {/* Two columns */}
+      <div className="mt-8 grid grid-cols-1 gap-12 lg:grid-cols-[1fr_400px]">
+        <div>
+          {/* Host summary */}
+          <div className="border-b border-slate-200 pb-6">
+            <div className="flex items-center justify-between gap-4">
+              <div>
+                <h2 className="text-xl font-bold">
+                  {place} hosted by {listing.hostName}
+                </h2>
+                <p className="mt-1 text-sm text-slate-600">
+                  {listing.maxGuests} guests · {listing.bedrooms} bedroom
+                  {listing.bedrooms > 1 ? "s" : ""} · {listing.beds} bed
+                  {listing.beds > 1 ? "s" : ""} · {listing.bathrooms} bath
+                  {listing.bathrooms > 1 ? "s" : ""}
+                </p>
+              </div>
+              <div className="brand-bg grid h-14 w-14 shrink-0 place-items-center rounded-full text-xl font-bold text-white">
+                {listing.hostName.charAt(0)}
+              </div>
+            </div>
+            {listing.hostBio && (
+              <p className="mt-3 text-sm text-slate-600">
+                <span className="font-semibold">Meet your host — </span>
+                {listing.hostBio} Host since {listing.hostSince}.
+              </p>
+            )}
+          </div>
+
+          {/* Highlights */}
+          {listing.highlights && listing.highlights.length > 0 && (
+            <div className="border-b border-slate-200 py-6">
+              <h3 className="mb-3 text-lg font-bold">What makes this stay special</h3>
+              <ul className="grid gap-3 sm:grid-cols-2">
+                {listing.highlights.map((h) => (
+                  <li key={h} className="flex items-start gap-2 text-sm">
+                    <span className="text-brand">✦</span>
+                    <span>{h}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {/* Description */}
+          <div className="border-b border-slate-200 py-6">
+            <p className="text-[15px] leading-relaxed text-slate-700">{listing.description}</p>
+            <p className="mt-4 text-sm text-slate-500">
+              Base rate <span className="font-semibold text-ink">{formatKes(listing.pricePerNight)}</span> per
+              night · cleaning fee {formatKes(listing.cleaningFee)}.
+            </p>
+          </div>
+
+          {/* Amenities */}
+          <div className="border-b border-slate-200 py-6">
+            <h3 className="mb-4 text-lg font-bold">What this place offers</h3>
+            <div className="grid gap-x-8 gap-y-6 sm:grid-cols-2">
+              {amenityGroups.map((g) => (
+                <div key={g.title}>
+                  <p className="mb-2 flex items-center gap-2 text-sm font-bold">
+                    <span className="text-lg">{g.icon}</span>
+                    {g.title}
+                  </p>
+                  <ul className="space-y-1 text-sm text-slate-600">
+                    {g.items.map((a) => (
+                      <li key={a}>{a}</li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Booking widget */}
+        <div>
+          <div className="sticky top-24">
+            <BookingWidget listing={listing} />
+            <p className="mt-3 text-center text-xs text-slate-500">
+              🔒 This is a demo reservation flow — no payment is taken.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Map */}
+      <section className="border-t border-slate-200 py-8">
+        <h2 className="mb-1 text-xl font-bold">Where you&apos;ll be</h2>
+        {listing.landmark && (
+          <p className="mb-2 inline-block rounded-full bg-rose-50 px-3 py-1 text-sm font-bold text-brand">
+            📍 Moments from {listing.landmark}
+          </p>
+        )}
+        <p className="mb-4 text-sm text-slate-600">
+          {listing.locationName}, {listing.region}, Kenya. The exact pin is shared once your booking is
+          confirmed — many stays sit on private conservancy land.
+        </p>
+        <SingleMap point={marker} />
+      </section>
+
+      {/* Reviews */}
+      <section className="border-t border-slate-200 py-8">
+        <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
+          <h2 className="flex items-center gap-2 text-xl font-bold">
+            <StarIcon className="h-5 w-5" />
+            {listing.rating.toFixed(2)} · {listing.reviewsCount} reviews
+          </h2>
+        </div>
+
+        <div className="grid gap-10 lg:grid-cols-[260px_1fr]">
+          <div className="space-y-2">
+            {dist.map((d) => (
+              <div key={d.stars} className="flex items-center gap-2 text-sm">
+                <span className="w-3">{d.stars}</span>
+                <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-slate-200">
+                  <div className="h-full rounded-full bg-slate-800" style={{ width: `${d.pct}%` }} />
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="grid gap-6 sm:grid-cols-2">
+            {reviews.length === 0 ? (
+              <p className="text-sm text-slate-500">No reviews yet — be the first to stay!</p>
+            ) : (
+              reviews.map((r) => (
+                <div key={r.id}>
+                  <div className="flex items-center gap-3">
+                    {r.avatar ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={r.avatar} alt={r.guestName} className="h-10 w-10 rounded-full object-cover" />
+                    ) : (
+                      <div className="brand-bg grid h-10 w-10 place-items-center rounded-full text-sm font-bold text-white">
+                        {r.guestName.charAt(0)}
+                      </div>
+                    )}
+                    <div>
+                      <p className="text-sm font-bold">{r.guestName}</p>
+                      <p className="text-xs text-slate-500">{r.stayedOn}</p>
+                    </div>
+                  </div>
+                  <div className="mt-1 flex">
+                    {Array.from({ length: 5 }).map((_, i) => (
+                      <StarIcon key={i} className={`h-3.5 w-3.5 ${i < r.rating ? "text-slate-800" : "text-slate-300"}`} />
+                    ))}
+                  </div>
+                  <p className="mt-2 text-sm text-slate-700">{r.comment}</p>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+      </section>
+
+      {/* Things to know */}
+      <section className="border-t border-slate-200 py-8">
+        <h2 className="mb-4 text-xl font-bold">Things to know</h2>
+        <div className="grid gap-6 sm:grid-cols-3">
+          <div>
+            <h3 className="mb-2 font-bold">House rules</h3>
+            <ul className="space-y-1 text-sm text-slate-600">
+              <li>Check-in after 2:00 PM</li>
+              <li>Check-out by 10:00 AM</li>
+              <li>{listing.maxGuests} guests maximum</li>
+              <li>No smoking indoors</li>
+            </ul>
+          </div>
+          <div>
+            <h3 className="mb-2 font-bold">Health &amp; safety</h3>
+            <ul className="space-y-1 text-sm text-slate-600">
+              <li>Trained guides on game drives</li>
+              <li>Malaria precautions recommended</li>
+              <li>First-aid kit on site</li>
+              <li>Wildlife is wild — follow ranger advice</li>
+            </ul>
+          </div>
+          <div>
+            <h3 className="mb-2 font-bold">Cancellation</h3>
+            <ul className="space-y-1 text-sm text-slate-600">
+              <li>Free cancellation up to 48 hours</li>
+              <li>Review the full policy at checkout</li>
+              <li>Conservancy &amp; park fees may apply</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      {/* Nearby */}
+      <section className="border-t border-slate-200 py-8">
+        <h2 className="mb-5 text-xl font-bold">Other stays you might like</h2>
+        <div className="grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-2 lg:grid-cols-4">
+          {nearby.map((l) => (
+            <ListingCard key={l.id} listing={l} />
+          ))}
+        </div>
+      </section>
+    </div>
+  );
+}

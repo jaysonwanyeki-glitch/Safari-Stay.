@@ -1,0 +1,76 @@
+@import "tailwindcss";
+
+@theme {
+  --color-brand: #ff385c;
+  --color-brand-dark: #d70466;
+  --color-brand-700: #c1005a;
+  --color-ink: #222222;
+  --color-fog: #f7f7f7;
+  --font-sans: "Inter", "Plus Jakarta Sans", ui-sans-serif, system-ui, -apple-system,
+    "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-sans);
+  color: var(--color-ink);
+  background-color: #ffffff;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* Airbnb-style brand gradient text */
+.brand-gradient {
+  background-image: linear-gradient(90deg, #bd1e59, #ff385c 45%, #ff5a5f);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.brand-bg {
+  background-image: linear-gradient(90deg, #e61e4d 0%, #e31c5f 50%, #d70466 100%);
+}
+
+/* Hide scrollbars on the horizontal category bar */
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Leaflet container should never capture page scroll awkwardly */
+.leaflet-container {
+  font: inherit;
+  background: #aadaff;
+}
+.leaflet-control-attribution {
+  font-size: 10px !important;
+}
+
+/* Subtle entrance animation for cards */
+@keyframes pop-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.pop-in {
+  animation: pop-in 0.45s ease both;
+}
+
+/* Thin image zoom on hover for cards */
+.card-zoom img {
+  transition: transform 0.5s ease;
+}
+.card-zoom:hover img {
+  transform: scale(1.05);
+}
