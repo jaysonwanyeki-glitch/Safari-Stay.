@@ -61,6 +61,11 @@ export default function BookingWidget({ listing }: { listing: PublicListing }) {
   const [phone, setPhone] = useState("");
   const [paymentMethod, setPaymentMethod] = useState<"property" | "mpesa">("property");
   const [transfer, setTransfer] = useState(false);
+  // Demo OTP: the code is shown on screen because no real SMS is sent.
+  const [sentCode, setSentCode] = useState<string | null>(null);
+  const [code, setCode] = useState("");
+  const [verified, setVerified] = useState(false);
+  const [codeError, setCodeError] = useState("");
   const [status, setStatus] = useState<Status>("idle");
   const [booking, setBooking] = useState<Booking | null>(null);
   const [error, setError] = useState("");
@@ -126,7 +131,8 @@ export default function BookingWidget({ listing }: { listing: PublicListing }) {
   const formValid =
     name.trim().length > 1 &&
     /\S+@\S+\.\S+/.test(email) &&
-    (paymentMethod === "property" || validPhone(phone));
+    validPhone(phone) &&
+    verified;
 
   const usdTotal = avail && avail.usdPerKes > 0 ? formatUsd(total / avail.usdPerKes) : null;
   const wa = waLink(listing);
@@ -144,6 +150,27 @@ export default function BookingWidget({ listing }: { listing: PublicListing }) {
   }
   const suggestion = clash ? suggestNext() : null;
 
+  function sendCode() {
+    if (!validPhone(phone)) {
+      setCodeError(t("widget.phoneRequired"));
+      return;
+    }
+    setCodeError("");
+    setVerified(false);
+    setCode("");
+    setSentCode(String(Math.floor(1000 + Math.random() * 9000)));
+  }
+
+  function checkCode() {
+    if (sentCode && sentCode === code.trim()) {
+      setVerified(true);
+      setCodeError("");
+    } else {
+      setVerified(false);
+      setCodeError(t("widget.codeMismatch"));
+    }
+  }
+
   async function confirm() {
     setStatus("submitting");
     setError("");
@@ -156,6 +183,7 @@ export default function BookingWidget({ listing }: { listing: PublicListing }) {
           guestName: name,
           guestEmail: email,
           guestPhone: phone,
+          guestVerified: verified,
           paymentMethod,
           transferRequested: transfer,
           transferFee,
@@ -256,7 +284,7 @@ export default function BookingWidget({ listing }: { listing: PublicListing }) {
             >
               {confirming ? "…" : t("widget.pendingSimulate")}
             </button>
-            <p className="mt-2 text-[11px] text-ink/60">🔒 Demo — no real STK push is sent.</p>
+            <p className="mt-2 text-[11px] text-ink/60">{t("widget.demoStkNote")}</p>
           </>
         )}
 
@@ -273,6 +301,7 @@ export default function BookingWidget({ listing }: { listing: PublicListing }) {
                 href={wa}
                 target="_blank"
                 rel="noreferrer"
+                title={t("widget.demoLine")}
                 className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-[#25D366] px-4 py-2 text-sm font-bold text-white shadow transition hover:brightness-95"
               >
                 💬 {t("widget.contactHost")}
@@ -297,6 +326,10 @@ export default function BookingWidget({ listing }: { listing: PublicListing }) {
             setEmail("");
             setPhone("");
             setTransfer(false);
+            setSentCode(null);
+            setCode("");
+            setVerified(false);
+            setCodeError("");
           }}
           className="mt-4 rounded-xl border border-emerald-300 px-4 py-2 text-sm font-semibold text-ink hover:bg-emerald-100"
         >
@@ -394,8 +427,8 @@ export default function BookingWidget({ listing }: { listing: PublicListing }) {
       </div>
 
       <p className="mt-2 text-xs text-sand-700">
-        Check-in from <span className="font-semibold text-ink">{listing.checkInTime}</span> · Check-out by{" "}
-        <span className="font-semibold text-ink">{listing.checkOutTime}</span>
+        {t("widget.checkInFrom")} <span className="font-semibold text-ink">{listing.checkInTime}</span> ·{" "}
+        {t("widget.checkOutBy")} <span className="font-semibold text-ink">{listing.checkOutTime}</span>
       </p>
 
       {clash && (
@@ -484,7 +517,7 @@ export default function BookingWidget({ listing }: { listing: PublicListing }) {
             </div>
             <p className="mb-3 text-sm text-sand-700">
               {nights} {t("widget.night")}
-              {nights > 1 ? "s" : ""} at {listing.title} · {formatKes(total)}
+              {nights > 1 ? "s" : ""} {t("widget.at")} {listing.title} · {formatKes(total)}
               {usdTotal ? ` (≈ ${usdTotal})` : ""}
             </p>
 
@@ -516,17 +549,56 @@ export default function BookingWidget({ listing }: { listing: PublicListing }) {
               </button>
             </div>
 
-            {paymentMethod === "mpesa" && (
-              <div className="mb-3 rounded-xl bg-emerald-50 p-3">
+            {/* Verify the guest by phone — the real Kenyan trust layer */}
+            <div className="mb-3 rounded-xl bg-gold-50 p-3">
+              <div className="flex gap-2">
                 <input
                   placeholder="+254 7XX XXX XXX"
                   value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  className="w-full rounded-xl border border-emerald-300 bg-white px-3 py-2 text-sm outline-none focus:border-emerald-500"
+                  onChange={(e) => {
+                    setPhone(e.target.value);
+                    setVerified(false);
+                  }}
+                  className="w-full rounded-xl border border-gold-300 bg-white px-3 py-2 text-sm outline-none focus:border-brand"
                 />
-                <p className="mt-1.5 text-[11px] text-emerald-800">✅ {t("widget.phoneNote")}</p>
+                <button
+                  type="button"
+                  onClick={sendCode}
+                  disabled={!validPhone(phone)}
+                  className="shrink-0 rounded-xl border border-gold-400 bg-white px-3 py-2 text-xs font-bold text-ink transition hover:bg-gold-100 disabled:opacity-40"
+                >
+                  {t("widget.sendCode")}
+                </button>
               </div>
-            )}
+              {sentCode && !verified && (
+                <div className="mt-2 rounded-lg bg-white/80 px-3 py-2 text-xs">
+                  <p className="font-semibold text-ink">
+                    {t("widget.demoCode", { code: sentCode })}
+                  </p>
+                  <div className="mt-1.5 flex gap-2">
+                    <input
+                      placeholder={t("widget.enterCode")}
+                      value={code}
+                      onChange={(e) => setCode(e.target.value)}
+                      onKeyDown={(e) => e.key === "Enter" && checkCode()}
+                      maxLength={4}
+                      className="w-32 rounded-lg border border-gold-300 bg-white px-2 py-1.5 text-sm outline-none focus:border-brand"
+                    />
+                    <button
+                      type="button"
+                      onClick={checkCode}
+                      className="rounded-lg bg-ink px-3 py-1.5 text-xs font-bold text-white hover:opacity-90"
+                    >
+                      OK
+                    </button>
+                  </div>
+                  {codeError && <p className="mt-1.5 text-xs font-semibold text-brand">{codeError}</p>}
+                </div>
+              )}
+              {verified && <p className="mt-1.5 text-[11px] font-semibold text-emerald-700">{t("widget.verifiedBadge")}</p>}
+              <p className="mt-1.5 text-[11px] text-sand-600">📲 {t("widget.verifyHint")}</p>
+              <p className="mt-1 text-[11px] text-sand-600">✅ {t("widget.phoneNote")}</p>
+            </div>
 
             <input
               placeholder={t("widget.fullName")}

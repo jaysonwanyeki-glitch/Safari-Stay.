@@ -66,6 +66,7 @@ export async function GET(req: NextRequest) {
       guestName: bookings.guestName,
       guestEmail: bookings.guestEmail,
       guestPhone: bookings.guestPhone,
+      guestVerified: bookings.guestVerified,
       paymentMethod: bookings.paymentMethod,
       status: bookings.status,
       transferRequested: bookings.transferRequested,
@@ -109,6 +110,7 @@ export async function POST(req: NextRequest) {
   const guestName = String(body.guestName ?? "").trim();
   const guestEmail = String(body.guestEmail ?? "").trim();
   const guestPhone = String(body.guestPhone ?? "").trim();
+  const guestVerified = Boolean(body.guestVerified);
   const checkIn = String(body.checkIn ?? "");
   const checkOut = String(body.checkOut ?? "");
   const guests = Number(body.guests);
@@ -136,7 +138,8 @@ export async function POST(req: NextRequest) {
   if (paymentMethod !== "mpesa" && paymentMethod !== "property") {
     return Response.json({ error: "Invalid payment method" }, { status: 422 });
   }
-  if (paymentMethod === "mpesa" && !validKenyanPhone(guestPhone)) {
+  // Phone is always required now: it verifies the guest and powers M-Pesa refunds.
+  if (!validKenyanPhone(guestPhone)) {
     return Response.json(
       { error: "Enter a valid Kenyan phone number (e.g. 07XXXXXXXX)" },
       { status: 422 },
@@ -173,6 +176,7 @@ export async function POST(req: NextRequest) {
       guestName,
       guestEmail,
       guestPhone: guestPhone || null,
+      guestVerified,
       checkIn,
       checkOut,
       guests,

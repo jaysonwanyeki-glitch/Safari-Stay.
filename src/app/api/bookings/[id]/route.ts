@@ -5,11 +5,21 @@ import { eq } from "drizzle-orm";
 
 export const dynamic = "force-dynamic";
 
+/** Free cancellation window: at least 48 hours before check-in. */
+const CANCEL_HOURS = 48;
+
+function insideCancellationWindow(checkIn: string): boolean {
+  const deadline = new Date();
+  deadline.setTime(deadline.getTime() + CANCEL_HOURS * 3600 * 1000);
+  // ISO dates compare lexicographically; a check-in past the deadline can't be cancelled free.
+  return checkIn > deadline.toISOString().slice(0, 10);
+}
+
 /**
  * Booking lifecycle actions (demo of the real Kenyan flow):
  * - "confirm" — simulate the M-Pesa STK push PIN entry → pending → confirmed
- * - "cancel"   — free cancellation (≤48h story); refund would return to the
- *                guest's M-Pesa, and the dates free up again.
+ * - "cancel"   — free cancellation within the 48-hour window; the refund would
+ *                return to the guest's M-Pesa and the dates free up again.
  */
 export async function PATCH(
   req: NextRequest,
@@ -29,7 +39,7 @@ export async function PATCH(
   }
 
   const existing = await db
-    .select({ id: bookings.id, status: bookings.status })
+    .select({ id: bookings.id, status: bookings.status, checkIn: bookings.checkIn })
     .from(bookings)
     .where(eq(bookings.id, bookingId))
     .limit(1);
@@ -49,6 +59,12 @@ export async function PATCH(
   if (body.action === "cancel") {
     if (current === "cancelled" || current === "completed") {
       return Response.json({ error: "This booking can no longer be cancelled" }, { status: 409 });
+    }
+    if (!insideCancellationWindow(existing[0].checkIn)) {
+      return Response.json(
+        { error: "Free cancellation ended — check-in is within 48 hours." },
+        { status: 409 },
+      );
     }
     await db.update(bookings).set({ status: "cancelled" }).where(eq(bookings.id, bookingId));
     return Response.json({ ok: true, status: "cancelled" });

@@ -29,6 +29,13 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en" className={`${inter.variable} ${fraunces.variable}`}>
       <body className="bg-sand-50 text-ink antialiased">
+        {/* Apply the saved language before React hydrates, so Swahili users never
+            see an English flash on load. Also drives the no-flicker store read. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `try{var l=localStorage.getItem('safari:locale');document.documentElement.dataset.locale=(l==='sw'||l==='en')?l:'en'}catch(e){document.documentElement.dataset.locale='en'}`,
+          }}
+        />
         <SafariBackground />
         <div className="relative z-10">
           <Header />

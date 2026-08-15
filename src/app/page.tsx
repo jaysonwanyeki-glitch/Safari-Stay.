@@ -24,6 +24,20 @@ const TIER_BLURB_TKEY: Record<string, TKey> = {
   luxury: "tiers.blurbLuxury",
 };
 
+const CAT_TKEY: Record<string, TKey> = {
+  all: "categories.all",
+  safari_lodge: "categories.safari_lodge",
+  beach_resort: "categories.beach_resort",
+  beach_villa: "categories.beach_villa",
+  apartment: "categories.apartment",
+  cottage: "categories.cottage",
+  bush_villa: "categories.bush_villa",
+  guesthouse: "categories.guesthouse",
+  tented_camp: "categories.tented_camp",
+  eco_camp: "categories.eco_camp",
+  farm_stay: "categories.farm_stay",
+};
+
 const HERO_IMG =
   "https://images.pexels.com/photos/15994021/pexels-photo-15994021.jpeg?auto=compress&cs=tinysrgb&fit=crop&w=1920&h=1280";
 
@@ -131,7 +145,7 @@ export default async function HomePage() {
               className="flex shrink-0 flex-col items-center gap-1 rounded-2xl border border-sand-300 bg-white/70 px-5 py-3 text-center text-xs font-semibold text-ink/80 shadow-sm transition hover:border-brand hover:bg-white hover:shadow-lg"
             >
               <span className="text-2xl">{c.icon}</span>
-              {c.key === "all" ? <T k="categories.all" /> : c.label}
+              <T k={CAT_TKEY[c.key] ?? "categories.all"} />
             </Link>
           ))}
         </div>

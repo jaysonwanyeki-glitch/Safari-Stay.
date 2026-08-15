@@ -13,6 +13,7 @@ type BookingResult = {
   guestName: string;
   guestEmail: string;
   guestPhone: string | null;
+  guestVerified: boolean;
   paymentMethod: "mpesa" | "property";
   status: "upcoming" | "active" | "completed" | "pending" | "cancelled";
   transferRequested: boolean;
@@ -220,7 +221,9 @@ export default function BookingsPage() {
             <h2 className="font-display text-xl font-bold">
               {results.length === 1 ? t("bookings.oneFound") : t("bookings.foundCount", { n: results.length })}
             </h2>
-            <p className="text-xs text-sand-600">for {email || ref}</p>
+            <p className="text-xs text-sand-600">
+              {t("bookings.for")} {email || ref}
+            </p>
           </div>
           <div className="space-y-4">
             {results.map((b) => {
@@ -260,9 +263,14 @@ export default function BookingsPage() {
                             {b.paymentMethod === "mpesa" ? "📲 " : "🏡 "}
                             {b.paymentMethod === "mpesa" ? t("bookings.mpesa") : t("bookings.payProperty")}
                           </span>
-                          {b.guestPhone && b.status !== "cancelled" && (
-                            <span className="rounded-full bg-gold-100 px-2 py-0.5 text-[11px] font-bold text-ink">
+                          {b.guestVerified && b.guestPhone && b.status !== "cancelled" && (
+                            <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-[11px] font-bold text-emerald-700">
                               ✅ {t("bookings.verified")} {b.guestPhone}
+                            </span>
+                          )}
+                          {!b.guestVerified && b.guestPhone && b.status !== "cancelled" && (
+                            <span className="rounded-full bg-sand-100 px-2 py-0.5 text-[11px] font-bold text-sand-700">
+                              📱 {t("bookings.phoneProvided")}: {b.guestPhone}
                             </span>
                           )}
                         </div>
@@ -316,6 +324,7 @@ export default function BookingsPage() {
                             href={waHref(b.listingHostPhone, b.listingTitle)}
                             target="_blank"
                             rel="noreferrer"
+                            title="Demo host line — replace with the real number"
                             className="rounded-full bg-[#25D366] px-3 py-1.5 text-xs font-bold text-white transition hover:brightness-95"
                           >
                             💬 {t("bookings.contactHost")}

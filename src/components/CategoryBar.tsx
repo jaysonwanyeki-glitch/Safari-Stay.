@@ -1,7 +1,21 @@
 "use client";
 
 import { CATEGORIES } from "@/lib/constants";
-import { useT } from "./Localized";
+import { useT, type TKey } from "./Localized";
+
+const CAT_TKEY: Record<string, TKey> = {
+  all: "categories.all",
+  safari_lodge: "categories.safari_lodge",
+  beach_resort: "categories.beach_resort",
+  beach_villa: "categories.beach_villa",
+  apartment: "categories.apartment",
+  cottage: "categories.cottage",
+  bush_villa: "categories.bush_villa",
+  guesthouse: "categories.guesthouse",
+  tented_camp: "categories.tented_camp",
+  eco_camp: "categories.eco_camp",
+  farm_stay: "categories.farm_stay",
+};
 
 type Props = {
   active: string;
@@ -27,7 +41,7 @@ export default function CategoryBar({ active, onSelect, className = "" }: Props)
               }`}
             >
               <span className="text-2xl leading-none">{c.icon}</span>
-              <span className="whitespace-nowrap">{c.key === "all" ? t("categories.all") : c.label}</span>
+              <span className="whitespace-nowrap">{t(CAT_TKEY[c.key] ?? "categories.all")}</span>
             </button>
           );
         })}

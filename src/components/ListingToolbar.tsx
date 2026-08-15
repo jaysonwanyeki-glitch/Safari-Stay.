@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import CategoryBar from "./CategoryBar";
-import { PRICE_TIERS, REGIONS, TIER_LABEL } from "@/lib/constants";
+import { PRICE_TIERS, REGIONS } from "@/lib/constants";
 import { useT } from "./Localized";
 
 type Params = Record<string, string | undefined>;
@@ -48,9 +48,9 @@ export default function ListingToolbar({ params, count }: { params: Params; coun
   const activeType = params.type ?? "all";
   const activeChips: string[] = [];
   if (fRegion) activeChips.push(fRegion);
-  if (fTier) activeChips.push(TIER_LABEL[fTier] ?? fTier);
-  if (fGuests > 0) activeChips.push(`${fGuests}+ guests`);
-  if (fMin || fMax) activeChips.push(`KES ${fMin || "0"}–${fMax || "∞"}`);
+  if (fTier) activeChips.push(t("tiers." + fTier as "tiers.budget"));
+  if (fGuests > 0) activeChips.push(t("toolbar.guestsPlus", { n: fGuests }));
+  if (fMin || fMax) activeChips.push(t("toolbar.kesRange", { min: fMin || "0", max: fMax || "∞" }));
 
   const tierTabs = [{ key: "", label: t("toolbar.allPrices"), icon: "🏷️" }, ...PRICE_TIERS.map((p) => ({ ...p, label: t("tiers." + p.key as "tiers.budget") }))];
 
@@ -111,7 +111,7 @@ export default function ListingToolbar({ params, count }: { params: Params; coun
       <p className="pb-2 text-sm text-sand-700">
         {count} {t("toolbar.staysCount")}
         {fRegion ? ` ${t("toolbar.inRegion", { region: fRegion })}` : ` ${t("toolbar.acrossKenya")}`}
-        {fTier ? ` · ${TIER_LABEL[fTier]}` : ""}
+        {fTier ? ` · ${t("tiers." + fTier as "tiers.budget")}` : ""}
       </p>
 
       {filters && (

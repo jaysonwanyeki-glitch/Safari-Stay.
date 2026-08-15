@@ -77,6 +77,7 @@ export const bookings = pgTable("bookings", {
   guestName: text("guest_name").notNull(),
   guestEmail: text("guest_email").notNull(),
   guestPhone: text("guest_phone"), // +2547… — identity verification & M-Pesa refunds
+  guestVerified: boolean("guest_verified").notNull().default(false), // passed the demo OTP check
   checkIn: text("check_in").notNull(),
   checkOut: text("check_out").notNull(),
   guests: integer("guests").notNull(),

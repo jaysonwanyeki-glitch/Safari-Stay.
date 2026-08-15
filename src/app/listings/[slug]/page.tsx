@@ -7,6 +7,7 @@ import AvailabilityStrip from "@/components/AvailabilityStrip";
 import SingleMap from "@/components/SingleMap";
 import ListingCard from "@/components/ListingCard";
 import WishlistButton from "@/components/WishlistButton";
+import Occupancy from "@/components/Occupancy";
 import { MapPinIcon, ShareIcon, StarIcon } from "@/components/icons";
 import { AMENITY_GROUPS, placeLabel, stimaMaji, waLink } from "@/lib/constants";
 import { formatKes } from "@/lib/format";
@@ -95,7 +96,7 @@ export default async function ListingDetailPage({
       {/* Breadcrumb */}
       <nav className="mb-3 flex items-center gap-1.5 text-sm text-sand-600">
         <Link href="/" className="hover:underline">
-          Home
+          <T k="detail.home" />
         </Link>
         <span>›</span>
         <Link href={`/listings?region=${encodeURIComponent(listing.region)}`} className="hover:underline">
@@ -152,7 +153,7 @@ export default async function ListingDetailPage({
           </div>
           <div className="flex items-center gap-1">
             <button className="flex items-center gap-2 rounded-full px-3 py-2 text-sm font-bold underline hover:bg-sand-100">
-              <ShareIcon className="h-4 w-4" /> Share
+              <ShareIcon className="h-4 w-4" /> <T k="detail.share" />
             </button>
             <WishlistButton id={listing.id} label />
           </div>
@@ -172,10 +173,12 @@ export default async function ListingDetailPage({
                   <T k="detail.hostedBy" vars={{ place, host: listing.hostName }} />
                 </h2>
                 <p className="mt-1 text-sm text-sand-700">
-                  {listing.maxGuests} guests · {listing.bedrooms} bedroom
-                  {listing.bedrooms > 1 ? "s" : ""} · {listing.beds} bed
-                  {listing.beds > 1 ? "s" : ""} · {listing.bathrooms} bath
-                  {listing.bathrooms > 1 ? "s" : ""}
+                  <Occupancy
+                    guests={listing.maxGuests}
+                    bedrooms={listing.bedrooms}
+                    beds={listing.beds}
+                    baths={listing.bathrooms}
+                  />
                 </p>
               </div>
               <div className="brand-bg grid h-14 w-14 shrink-0 place-items-center rounded-full font-display text-xl font-bold text-white">
@@ -196,6 +199,7 @@ export default async function ListingDetailPage({
                   href={waLink(listing)!}
                   target="_blank"
                   rel="noreferrer"
+                  title={"Demo host line — replace with the real number"}
                   className="inline-flex items-center gap-1.5 rounded-full bg-[#25D366] px-4 py-2 text-sm font-bold text-white shadow transition hover:brightness-95"
                 >
                   💬 <T k="widget.contactHost" />
@@ -250,7 +254,8 @@ export default async function ListingDetailPage({
                     <T k="detail.weatherTitle" /> {listing.locationName}
                   </p>
                   <p className="mt-0.5 text-sm text-sand-700">
-                    {weather.icon} {weather.label} · {weather.humidity}% humidity · {weather.wind} km/h wind
+                    {weather.icon} {weather.label} ·{" "}
+                    <T k="detail.weatherMeta" vars={{ h: weather.humidity, w: weather.wind }} />
                   </p>
                 </div>
                 <p className="font-display text-4xl font-bold text-ink">{weather.temp}°</p>
@@ -413,8 +418,12 @@ export default async function ListingDetailPage({
               <li>
                 <T k="search.checkOut" /> by {listing.checkOutTime}
               </li>
-              <li>{listing.maxGuests} guests maximum</li>
-              <li>No smoking indoors</li>
+              <li>
+                <T k="house.maxGuests" vars={{ n: listing.maxGuests }} />
+              </li>
+              <li>
+                <T k="house.noSmoking" />
+              </li>
             </ul>
           </div>
           <div>
@@ -422,10 +431,18 @@ export default async function ListingDetailPage({
               <T k="detail.health" />
             </h3>
             <ul className="space-y-1 text-sm text-sand-700">
-              <li>Trained guides on game drives</li>
-              <li>Malaria precautions recommended</li>
-              <li>First-aid kit on site</li>
-              <li>Wildlife is wild — follow ranger advice</li>
+              <li>
+                <T k="health.trainedGuides" />
+              </li>
+              <li>
+                <T k="health.malaria" />
+              </li>
+              <li>
+                <T k="health.firstAid" />
+              </li>
+              <li>
+                <T k="health.wildlife" />
+              </li>
             </ul>
           </div>
           <div>
@@ -436,8 +453,12 @@ export default async function ListingDetailPage({
               <li>
                 <T k="detail.freeCancel" /> — <T k="bookings.refundNote" />
               </li>
-              <li>Review the full policy at checkout</li>
-              <li>Conservancy &amp; park fees may apply</li>
+              <li>
+                <T k="cancel.reviewPolicy" />
+              </li>
+              <li>
+                <T k="cancel.parkFees" />
+              </li>
             </ul>
           </div>
         </div>
