@@ -1,3 +1,6 @@
+"use client";
+
+import { useState } from "react";
 import type { BookedRange } from "@/lib/data";
 
 const WEEKDAYS = ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"];
@@ -7,15 +10,21 @@ function localIso(d: Date) {
 }
 
 /**
- * "Booked dates this month" strip — a compact calendar for the current month
- * with days already taken (from real bookings) marked as booked.
+ * "Booked dates" availability strip — a compact, navigable calendar showing
+ * which nights are already taken (from real bookings). Guests can scan ahead
+ * with next/prev month buttons; clicking the month label returns to today.
  */
 export default function AvailabilityStrip({ ranges }: { ranges: BookedRange[] }) {
+  const [offset, setOffset] = useState(0);
+
   const now = new Date();
-  const year = now.getFullYear();
-  const month = now.getMonth();
-  const daysInMonth = new Date(year, month + 1, 0).getDate();
-  const startOffset = (new Date(year, month, 1).getDay() + 6) % 7; // Monday-first
+  const baseYear = now.getFullYear();
+  const baseMonth = now.getMonth();
+  const viewYear = baseYear + Math.floor((baseMonth + offset) / 12);
+  const viewMonth = ((baseMonth + offset) % 12 + 12) % 12;
+
+  const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate();
+  const startOffset = (new Date(viewYear, viewMonth, 1).getDay() + 6) % 7; // Monday-first
   const todayIso = localIso(now);
 
   const bookedSet = new Set<string>();
@@ -23,22 +32,50 @@ export default function AvailabilityStrip({ ranges }: { ranges: BookedRange[] })
     const start = new Date(r.checkIn + "T00:00:00");
     const end = new Date(r.checkOut + "T00:00:00");
     for (let d = new Date(start); d < end; d.setDate(d.getDate() + 1)) {
-      if (d.getFullYear() === year && d.getMonth() === month) bookedSet.add(localIso(d));
+      if (d.getFullYear() === viewYear && d.getMonth() === viewMonth) bookedSet.add(localIso(d));
     }
   }
 
-  const monthLabel = now.toLocaleDateString("en-GB", { month: "long", year: "numeric" });
-  // Only future (or today's) unbooked nights are actually bookable.
+  // Only unbooked nights from today onward are actually bookable.
   let availableNights = 0;
-  for (let d = new Date(year, month, now.getDate()); d.getMonth() === month; d.setDate(d.getDate() + 1)) {
+  const firstCountDay = offset === 0 ? now.getDate() : 1;
+  for (let d = new Date(viewYear, viewMonth, firstCountDay); d.getMonth() === viewMonth; d.setDate(d.getDate() + 1)) {
     if (!bookedSet.has(localIso(d))) availableNights++;
   }
 
+  const monthLabel = new Date(viewYear, viewMonth, 1).toLocaleDateString("en-GB", {
+    month: "long",
+    year: "numeric",
+  });
+
   return (
     <div className="rounded-2xl border border-sand-200 bg-white/90 p-5 shadow-sm">
-      <div className="mb-3 flex items-baseline justify-between">
-        <h3 className="font-display text-base font-bold">Booked dates this month</h3>
-        <span className="text-xs font-semibold text-sand-600">{monthLabel}</span>
+      <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+        <h3 className="font-display text-base font-bold">Booked dates</h3>
+        <div className="flex items-center gap-1">
+          <button
+            onClick={() => setOffset((o) => Math.max(0, o - 1))}
+            disabled={offset === 0}
+            aria-label="Previous month"
+            className="grid h-7 w-7 place-items-center rounded-full border border-sand-300 text-sm text-ink transition hover:bg-sand-100 disabled:opacity-30 disabled:hover:bg-transparent"
+          >
+            ‹
+          </button>
+          <button
+            onClick={() => setOffset(0)}
+            title={offset === 0 ? "This month" : "Back to this month"}
+            className="min-w-[8.5rem] rounded-full px-3 py-1 text-xs font-bold text-sand-700 transition hover:bg-sand-100"
+          >
+            {monthLabel}
+          </button>
+          <button
+            onClick={() => setOffset((o) => o + 1)}
+            aria-label="Next month"
+            className="grid h-7 w-7 place-items-center rounded-full border border-sand-300 text-sm text-ink transition hover:bg-sand-100"
+          >
+            ›
+          </button>
+        </div>
       </div>
 
       <div className="grid grid-cols-7 gap-1 text-center">
@@ -52,7 +89,7 @@ export default function AvailabilityStrip({ ranges }: { ranges: BookedRange[] })
         ))}
         {Array.from({ length: daysInMonth }).map((_, i) => {
           const day = i + 1;
-          const iso = `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+          const iso = `${viewYear}-${String(viewMonth + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
           const booked = bookedSet.has(iso);
           const past = iso < todayIso;
           const isToday = iso === todayIso;
@@ -85,7 +122,9 @@ export default function AvailabilityStrip({ ranges }: { ranges: BookedRange[] })
         <span className="flex items-center gap-1.5">
           <span className="h-2.5 w-2.5 rounded-sm bg-sand-100/60" /> Past
         </span>
-        <span className="ml-auto font-bold text-ink">{availableNights} nights free from today</span>
+        <span className="ml-auto font-bold text-ink">
+          {availableNights} nights {offset === 0 ? "free from today" : "free"}
+        </span>
       </div>
     </div>
   );
