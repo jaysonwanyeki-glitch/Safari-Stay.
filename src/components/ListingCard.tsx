@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import type { PublicListing } from "@/lib/data";
 import { PRICE_TIERS, placeLabel } from "@/lib/constants";
 import { formatKes } from "@/lib/format";
