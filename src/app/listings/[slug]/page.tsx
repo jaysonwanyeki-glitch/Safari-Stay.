@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import Gallery from "@/components/Gallery";
 import BookingWidget from "@/components/BookingWidget";
+import AvailabilityStrip from "@/components/AvailabilityStrip";
 import SingleMap from "@/components/SingleMap";
 import ListingCard from "@/components/ListingCard";
 import WishlistButton from "@/components/WishlistButton";
@@ -10,6 +11,7 @@ import { MapPinIcon, ShareIcon, StarIcon } from "@/components/icons";
 import { AMENITY_GROUPS, placeLabel } from "@/lib/constants";
 import { formatKes } from "@/lib/format";
 import {
+  getBookedRanges,
   getListingBySlug,
   getNearbyListings,
   getReviewsForListing,
@@ -45,9 +47,10 @@ export default async function ListingDetailPage({
   const listing = await getListingBySlug(slug);
   if (!listing) notFound();
 
-  const [reviews, nearby] = await Promise.all([
+  const [reviews, nearby, bookedRanges] = await Promise.all([
     getReviewsForListing(listing.id),
     getNearbyListings(listing, 4),
+    getBookedRanges(listing.id),
   ]);
 
   const [weather, usdNightly] = await Promise.all([
@@ -233,13 +236,16 @@ export default async function ListingDetailPage({
           </div>
         </div>
 
-        {/* Booking widget */}
+        {/* Booking widget + availability strip */}
         <div>
           <div className="sticky top-24">
             <BookingWidget listing={listing} />
             <p className="mt-3 text-center text-xs text-sand-600">
               🔒 This is a demo reservation flow — no payment is taken.
             </p>
+          </div>
+          <div className="mt-6">
+            <AvailabilityStrip ranges={bookedRanges} />
           </div>
         </div>
       </div>

@@ -1,5 +1,5 @@
 import { db } from "@/db";
-import { listings, reviews } from "@/db/schema";
+import { bookings, listings, reviews } from "@/db/schema";
 import {
   and,
   asc,
@@ -57,6 +57,11 @@ export type PublicReview = {
   rating: number;
   comment: string;
   stayedOn: string;
+};
+
+export type BookedRange = {
+  checkIn: string;
+  checkOut: string;
 };
 
 export type ListingMarker = {
@@ -223,6 +228,15 @@ export async function getListingBySlug(slug: string): Promise<PublicListing | nu
   const rows = await db.select().from(listings).where(eq(listings.slug, slug)).limit(1);
   if (rows.length === 0) return null;
   return toPublic(rows[0]);
+}
+
+/** All booking date ranges for a listing — powers the availability strip. */
+export async function getBookedRanges(listingId: number): Promise<BookedRange[]> {
+  const rows = await db
+    .select({ checkIn: bookings.checkIn, checkOut: bookings.checkOut })
+    .from(bookings)
+    .where(eq(bookings.listingId, listingId));
+  return rows;
 }
 
 export async function getReviewsForListing(listingId: number): Promise<PublicReview[]> {
