@@ -3,6 +3,7 @@
 import { useState } from "react";
 import type { BookedRange } from "@/lib/data";
 import { PICK_CHECKIN_EVENT, type PickCheckinDetail } from "@/lib/events";
+import { useT } from "./Localized";
 
 const WEEKDAYS = ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"];
 
@@ -22,6 +23,7 @@ export default function AvailabilityStrip({
   ranges: BookedRange[];
   listingId: number;
 }) {
+  const t = useT();
   const [offset, setOffset] = useState(0);
 
   const now = new Date();
@@ -58,26 +60,26 @@ export default function AvailabilityStrip({
   return (
     <div className="rounded-2xl border border-sand-200 bg-white/90 p-5 shadow-sm">
       <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-        <h3 className="font-display text-base font-bold">Booked dates</h3>
+        <h3 className="font-display text-base font-bold">{t("strip.title")}</h3>
         <div className="flex items-center gap-1">
           <button
             onClick={() => setOffset((o) => Math.max(0, o - 1))}
             disabled={offset === 0}
-            aria-label="Previous month"
+            aria-label={t("strip.prev")}
             className="grid h-7 w-7 place-items-center rounded-full border border-sand-300 text-sm text-ink transition hover:bg-sand-100 disabled:opacity-30 disabled:hover:bg-transparent"
           >
             ‹
           </button>
           <button
             onClick={() => setOffset(0)}
-            title={offset === 0 ? "This month" : "Back to this month"}
+            title={offset === 0 ? t("strip.thisMonth") : t("strip.backMonth")}
             className="min-w-[8.5rem] rounded-full px-3 py-1 text-xs font-bold text-sand-700 transition hover:bg-sand-100"
           >
             {monthLabel}
           </button>
           <button
             onClick={() => setOffset((o) => o + 1)}
-            aria-label="Next month"
+            aria-label={t("strip.next")}
             className="grid h-7 w-7 place-items-center rounded-full border border-sand-300 text-sm text-ink transition hover:bg-sand-100"
           >
             ›
@@ -136,22 +138,20 @@ export default function AvailabilityStrip({
 
       <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-sand-700">
         <span className="flex items-center gap-1.5">
-          <span className="h-2.5 w-2.5 rounded-sm bg-brand" /> Booked
+          <span className="h-2.5 w-2.5 rounded-sm bg-brand" /> {t("strip.booked")}
         </span>
         <span className="flex items-center gap-1.5">
-          <span className="h-2.5 w-2.5 rounded-sm bg-sand-50 ring-1 ring-sand-200" /> Available
+          <span className="h-2.5 w-2.5 rounded-sm bg-sand-50 ring-1 ring-sand-200" /> {t("strip.available")}
         </span>
         <span className="flex items-center gap-1.5">
-          <span className="h-2.5 w-2.5 rounded-sm bg-sand-100/60" /> Past
+          <span className="h-2.5 w-2.5 rounded-sm bg-sand-100/60" /> {t("strip.past")}
         </span>
         <span className="ml-auto font-bold text-ink">
-          {availableNights} nights {offset === 0 ? "free from today" : "free"}
+          {availableNights} {offset === 0 ? t("strip.freeFromToday") : t("strip.free")}
         </span>
       </div>
 
-      <p className="mt-2 text-[11px] text-sand-600">
-        💡 Tap any available day to set it as your check-in.
-      </p>
+      <p className="mt-2 text-[11px] text-sand-600">{t("strip.hint")}</p>
     </div>
   );
 }

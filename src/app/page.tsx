@@ -8,8 +8,21 @@ import {
   getRegionCounts,
 } from "@/lib/data";
 import ListingCard from "@/components/ListingCard";
+import { T, type TKey } from "@/components/Localized";
 
 export const dynamic = "force-dynamic";
+
+const TIER_TKEY: Record<string, TKey> = {
+  budget: "tiers.budget",
+  mid: "tiers.mid",
+  luxury: "tiers.luxury",
+};
+
+const TIER_BLURB_TKEY: Record<string, TKey> = {
+  budget: "tiers.blurbBudget",
+  mid: "tiers.blurbMid",
+  luxury: "tiers.blurbLuxury",
+};
 
 const HERO_IMG =
   "https://images.pexels.com/photos/15994021/pexels-photo-15994021.jpeg?auto=compress&cs=tinysrgb&fit=crop&w=1920&h=1280";
@@ -61,42 +74,47 @@ export default async function HomePage() {
         <div className="absolute inset-x-0 bottom-0">
           <div className="mx-auto max-w-7xl px-6 pb-12 sm:pb-16">
             <p className="text-sm font-bold uppercase tracking-[0.2em] text-gold-300">
-              Kenya · Safari &amp; wilderness stays
+              <T k="hero.eyebrow" />
             </p>
             <h1 className="font-display mt-3 max-w-3xl text-4xl font-bold leading-[1.08] text-white sm:text-6xl">
-              Find your place in the wild.
+              <T k="hero.title" />
             </h1>
             <p className="mt-4 max-w-xl text-lg text-white/85">
-              Beachfront villas, bush homes and hosted camps run by Kenyan locals — your home-from-home
-              beside the reserves, the coast and the city.
+              <T k="hero.sub" />
             </p>
             <div className="mt-7 flex flex-wrap gap-3">
               <Link
                 href="/listings"
                 className="brand-bg rounded-full px-7 py-3.5 text-sm font-bold text-white shadow-xl"
               >
-                Explore all stays
+                <T k="hero.explore" />
               </Link>
               <Link
                 href="/listings?region=Maasai%20Mara"
                 className="rounded-full bg-white/95 px-7 py-3.5 text-sm font-bold text-ink shadow-xl"
               >
-                Maasai Mara escapes
+                <T k="hero.mara" />
               </Link>
             </div>
 
             <dl className="mt-10 flex flex-wrap gap-x-10 gap-y-4 text-white">
               <div>
                 <dt className="text-3xl font-extrabold">{stats.stays}+</dt>
-                <dd className="text-sm text-white/80">curated stays</dd>
+                <dd className="text-sm text-white/80">
+                  <T k="hero.stays" />
+                </dd>
               </div>
               <div>
                 <dt className="text-3xl font-extrabold">{stats.regions}</dt>
-                <dd className="text-sm text-white/80">safari regions</dd>
+                <dd className="text-sm text-white/80">
+                  <T k="hero.regions" />
+                </dd>
               </div>
               <div>
                 <dt className="text-3xl font-extrabold">{stats.parks}</dt>
-                <dd className="text-sm text-white/80">parks &amp; reserves</dd>
+                <dd className="text-sm text-white/80">
+                  <T k="hero.parks" />
+                </dd>
               </div>
             </dl>
           </div>
@@ -113,7 +131,7 @@ export default async function HomePage() {
               className="flex shrink-0 flex-col items-center gap-1 rounded-2xl border border-sand-300 bg-white/70 px-5 py-3 text-center text-xs font-semibold text-ink/80 shadow-sm transition hover:border-brand hover:bg-white hover:shadow-lg"
             >
               <span className="text-2xl">{c.icon}</span>
-              {c.label}
+              {c.key === "all" ? <T k="categories.all" /> : c.label}
             </Link>
           ))}
         </div>
@@ -123,11 +141,15 @@ export default async function HomePage() {
       <section className="mx-auto max-w-7xl px-6 pb-4">
         <div className="mb-6 flex items-end justify-between">
           <div>
-            <h2 className="font-display text-2xl font-bold sm:text-3xl">Featured wilderness stays</h2>
-            <p className="mt-1 text-sand-600">Top-rated homes &amp; hosted stays our travellers love.</p>
+            <h2 className="font-display text-2xl font-bold sm:text-3xl">
+              <T k="home.featuredTitle" />
+            </h2>
+            <p className="mt-1 text-sand-600">
+              <T k="home.featuredSub" />
+            </p>
           </div>
           <Link href="/listings?sort=rating" className="hidden shrink-0 font-semibold text-brand sm:block">
-            See all →
+            <T k="home.seeAll" /> →
           </Link>
         </div>
         <div className="grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
@@ -139,8 +161,12 @@ export default async function HomePage() {
 
       {/* Stay for any budget */}
       <section className="mx-auto max-w-7xl px-6 py-10">
-        <h2 className="mb-1 text-2xl font-bold sm:text-3xl">Stay for any budget</h2>
-        <p className="mb-6 text-sand-600">From backpacker bandas to private luxury villas.</p>
+        <h2 className="mb-1 text-2xl font-bold sm:text-3xl">
+          <T k="home.budgetTitle" />
+        </h2>
+        <p className="mb-6 text-sand-600">
+          <T k="home.budgetSub" />
+        </p>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           {PRICE_TIERS.map((t) => (
             <Link
@@ -149,10 +175,14 @@ export default async function HomePage() {
               className="group rounded-2xl border border-sand-300 bg-white/80 p-6 shadow-sm transition hover:-translate-y-0.5 hover:border-brand hover:shadow-xl"
             >
               <div className="text-3xl">{t.icon}</div>
-              <h3 className="mt-3 text-lg font-bold">{t.label} stays</h3>
-              <p className="mt-1 text-sm text-sand-700">{t.blurb}</p>
+              <h3 className="mt-3 text-lg font-bold">
+                <T k={TIER_TKEY[t.key]} />
+              </h3>
+              <p className="mt-1 text-sm text-sand-700">
+                <T k={TIER_BLURB_TKEY[t.key]} />
+              </p>
               <p className="mt-3 text-sm font-semibold text-brand">
-                Browse {t.label.toLowerCase()} →
+                <T k="home.browse" /> <T k={TIER_TKEY[t.key]} /> →
               </p>
             </Link>
           ))}
@@ -161,7 +191,9 @@ export default async function HomePage() {
 
       {/* Budget rail */}
       <section className="mx-auto max-w-7xl px-6 pb-2">
-        <h2 className="mb-6 text-2xl font-bold sm:text-3xl">💸 Budget-friendly escapes</h2>
+        <h2 className="mb-6 text-2xl font-bold sm:text-3xl">
+          <T k="home.budgetRail" />
+        </h2>
         <div className="grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {budget.slice(0, 8).map((l) => (
             <ListingCard key={l.id} listing={l} />
@@ -171,7 +203,9 @@ export default async function HomePage() {
 
       {/* Luxury rail */}
       <section className="mx-auto max-w-7xl px-6 py-10">
-        <h2 className="mb-6 text-2xl font-bold sm:text-3xl">👑 Indulge in luxury</h2>
+        <h2 className="mb-6 text-2xl font-bold sm:text-3xl">
+          <T k="home.luxuryRail" />
+        </h2>
         <div className="grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {luxury.slice(0, 8).map((l) => (
             <ListingCard key={l.id} listing={l} />
@@ -181,7 +215,9 @@ export default async function HomePage() {
 
       {/* Regions */}
       <section className="mx-auto max-w-7xl px-6 py-12">
-        <h2 className="mb-6 text-2xl font-bold sm:text-3xl">Explore by region</h2>
+        <h2 className="mb-6 text-2xl font-bold sm:text-3xl">
+          <T k="home.regionsTitle" />
+        </h2>
         <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
           {REGIONS.map((r) => (
             <Link
@@ -200,7 +236,7 @@ export default async function HomePage() {
                 <h3 className="text-lg font-bold leading-tight">{r.name}</h3>
                 <p className="mt-0.5 line-clamp-2 text-xs text-white/80">{r.blurb}</p>
                 <p className="mt-1 text-xs font-semibold text-gold-200">
-                  {regionCounts[r.name] ?? 0} stays
+                  {regionCounts[r.name] ?? 0} <T k="home.count" />
                 </p>
               </div>
             </Link>
@@ -210,9 +246,11 @@ export default async function HomePage() {
 
       {/* Popular spots */}
       <section className="mx-auto max-w-7xl px-6 py-12">
-        <h2 className="font-display mb-1 text-2xl font-bold sm:text-3xl">Popular stays by landmark</h2>
+        <h2 className="font-display mb-1 text-2xl font-bold sm:text-3xl">
+          <T k="home.spotsTitle" />
+        </h2>
         <p className="mb-6 text-sand-600">
-          Quick links to real Kenyan icons — from Diani&apos;s sands to the Mara.
+          <T k="home.spotsSub" />
         </p>
         <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
           {DIANI_SPOTS.map((s) => (
@@ -233,18 +271,24 @@ export default async function HomePage() {
       {/* Value props */}
       <section className="bg-fog">
         <div className="mx-auto max-w-7xl px-6 py-14">
-          <h2 className="mb-8 text-2xl font-bold sm:text-3xl">Why book with SafariStay</h2>
+          <h2 className="mb-8 text-2xl font-bold sm:text-3xl">
+            <T k="home.whyTitle" />
+          </h2>
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {[
-              { icon: "🦁", title: "Right beside the wild", body: "Stays minutes from the Mara, Amboseli, Nakuru, Samburu and Tsavo — the Big Five on your doorstep." },
-              { icon: "🧭", title: "Local Maasai & Samburu hosts", body: "Book directly with rangers, guides and community-run conservancies who know the land best." },
-              { icon: "🛡️", title: "Verified & flexible", body: "Real reviews, transparent KES pricing and free cancellation options on most stays." },
-              { icon: "🌱", title: "Travel that gives back", body: "Every booking supports conservation fees and community tourism across Kenya." },
+              { icon: "🦁", t: "home.why1t" as const, b: "home.why1b" as const },
+              { icon: "🧭", t: "home.why2t" as const, b: "home.why2b" as const },
+              { icon: "🛡️", t: "home.why3t" as const, b: "home.why3b" as const },
+              { icon: "🌱", t: "home.why4t" as const, b: "home.why4b" as const },
             ].map((v) => (
-              <div key={v.title} className="rounded-2xl border border-sand-200 bg-white/90 p-6 shadow-sm">
+              <div key={v.t} className="rounded-2xl border border-sand-200 bg-white/90 p-6 shadow-sm">
                 <div className="text-3xl">{v.icon}</div>
-                <h3 className="mt-3 font-bold">{v.title}</h3>
-                <p className="mt-1 text-sm text-sand-700">{v.body}</p>
+                <h3 className="mt-3 font-bold">
+                  <T k={v.t} />
+                </h3>
+                <p className="mt-1 text-sm text-sand-700">
+                  <T k={v.b} />
+                </p>
               </div>
             ))}
           </div>
@@ -255,14 +299,18 @@ export default async function HomePage() {
       <section className="brand-bg">
         <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-6 py-12 text-center text-white sm:flex-row sm:text-left">
           <div>
-            <h2 className="font-display text-2xl font-bold sm:text-3xl">Host your home, villa or camp</h2>
-            <p className="mt-1 text-white/85">Share your corner of Kenya with travellers from around the world.</p>
+            <h2 className="font-display text-2xl font-bold sm:text-3xl">
+              <T k="home.hostCtaT" />
+            </h2>
+            <p className="mt-1 text-white/85">
+              <T k="home.hostCtaB" />
+            </p>
           </div>
           <Link
             href="/listings"
             className="rounded-full bg-white px-7 py-3.5 text-sm font-bold text-ink shadow-xl"
           >
-            Start hosting
+            <T k="home.hostCtaBtn" />
           </Link>
         </div>
       </section>

@@ -1,6 +1,7 @@
 "use client";
 
 import { CATEGORIES } from "@/lib/constants";
+import { useT } from "./Localized";
 
 type Props = {
   active: string;
@@ -9,6 +10,7 @@ type Props = {
 };
 
 export default function CategoryBar({ active, onSelect, className = "" }: Props) {
+  const t = useT();
   return (
     <div className={`no-scrollbar overflow-x-auto ${className}`}>
       <div className="flex min-w-max items-stretch gap-2">
@@ -25,7 +27,7 @@ export default function CategoryBar({ active, onSelect, className = "" }: Props)
               }`}
             >
               <span className="text-2xl leading-none">{c.icon}</span>
-              <span className="whitespace-nowrap">{c.label}</span>
+              <span className="whitespace-nowrap">{c.key === "all" ? t("categories.all") : c.label}</span>
             </button>
           );
         })}

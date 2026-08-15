@@ -1,7 +1,7 @@
 import { NextRequest } from "next/server";
 import { db } from "@/db";
 import { bookings } from "@/db/schema";
-import { desc, eq } from "drizzle-orm";
+import { and, desc, eq, ne } from "drizzle-orm";
 import { seasonForDate, SEASON_LABEL, SEASON_EMOJI } from "@/lib/seasons";
 import { getUsdToKes } from "@/lib/currency";
 
@@ -16,7 +16,7 @@ export async function GET(req: NextRequest) {
   const rows = await db
     .select({ checkIn: bookings.checkIn, checkOut: bookings.checkOut })
     .from(bookings)
-    .where(eq(bookings.listingId, listingId))
+    .where(and(eq(bookings.listingId, listingId), ne(bookings.status, "cancelled")))
     .orderBy(desc(bookings.checkIn));
 
   const today = new Date();

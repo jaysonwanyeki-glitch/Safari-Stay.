@@ -4,11 +4,15 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { REGIONS } from "@/lib/constants";
-import { GlobeIcon, MenuIcon, SearchIcon } from "./icons";
+import { useLocale, setLocale, readLocale } from "@/lib/locale";
+import { useT } from "./Localized";
+import { GlobeIcon, SearchIcon } from "./icons";
 import Logo from "./Logo";
 
 export default function Header() {
   const router = useRouter();
+  const t = useT();
+  const locale = useLocale();
   const [open, setOpen] = useState(false);
   const [tab, setTab] = useState<"where" | "when" | "who">("where");
   const [region, setRegion] = useState("");
@@ -16,6 +20,11 @@ export default function Header() {
   const [checkOut, setCheckOut] = useState("");
   const [guests, setGuests] = useState(0);
   const panelRef = useRef<HTMLDivElement>(null);
+
+  // Keep <html lang> in sync with the saved locale on first paint.
+  useEffect(() => {
+    document.documentElement.lang = readLocale();
+  }, []);
 
   useEffect(() => {
     function onClick(e: MouseEvent) {
@@ -55,14 +64,14 @@ export default function Header() {
             }}
             className="mx-auto flex w-full items-center gap-1 rounded-full border border-sand-300 bg-white py-2 pl-6 pr-2 shadow-sm transition hover:border-ember-500/40 hover:shadow-md"
           >
-            <span className="text-sm font-medium">{region || "Anywhere"}</span>
+            <span className="text-sm font-medium">{region || t("search.anywhere")}</span>
             <span className="mx-2 h-5 w-px bg-sand-200" />
             <span className="text-sm font-medium text-sand-700">
-              {checkIn && checkOut ? `${checkIn} – ${checkOut}` : "Any week"}
+              {checkIn && checkOut ? `${checkIn} – ${checkOut}` : t("search.anyWeek")}
             </span>
             <span className="mx-2 h-5 w-px bg-sand-200" />
             <span className="text-sm font-medium text-sand-700">
-              {guests > 0 ? `${guests} guest${guests > 1 ? "s" : ""}` : "Add guests"}
+              {guests > 0 ? `${guests} ${t("widget.guest")}${guests > 1 ? "s" : ""}` : t("search.addGuests")}
             </span>
             <span className="brand-bg ml-auto grid h-8 w-8 place-items-center rounded-full text-white">
               <SearchIcon className="h-4 w-4" />
@@ -72,7 +81,11 @@ export default function Header() {
           {open && (
             <div className="absolute left-1/2 top-14 z-50 w-[min(92vw,560px)] -translate-x-1/2 rounded-3xl border border-sand-300 bg-white p-5 shadow-2xl">
               <div className="mb-4 flex gap-2 text-sm">
-                {([["where", "Where"], ["when", "When"], ["who", "Who"]] as const).map(([k, label]) => (
+                {([
+                  ["where", t("search.tabWhere")],
+                  ["when", t("search.tabWhen")],
+                  ["who", t("search.tabWho")],
+                ] as const).map(([k, label]) => (
                   <button
                     key={k}
                     onClick={() => setTab(k)}
@@ -93,7 +106,7 @@ export default function Header() {
                       region === "" ? "border-brand bg-ember-50" : "border-sand-300 hover:border-brand"
                     }`}
                   >
-                    🌍 Anywhere in Kenya
+                    🌍 {t("search.anywhereKenya")}
                   </button>
                   {REGIONS.map((r) => (
                     <button
@@ -112,7 +125,7 @@ export default function Header() {
               {tab === "when" && (
                 <div className="grid grid-cols-2 gap-4">
                   <label className="text-sm">
-                    <span className="mb-1 block font-semibold">Check in</span>
+                    <span className="mb-1 block font-semibold">{t("search.checkIn")}</span>
                     <input
                       type="date"
                       value={checkIn}
@@ -121,7 +134,7 @@ export default function Header() {
                     />
                   </label>
                   <label className="text-sm">
-                    <span className="mb-1 block font-semibold">Check out</span>
+                    <span className="mb-1 block font-semibold">{t("search.checkOut")}</span>
                     <input
                       type="date"
                       value={checkOut}
@@ -135,8 +148,8 @@ export default function Header() {
               {tab === "who" && (
                 <div className="flex items-center justify-between rounded-xl border border-sand-300 px-4 py-3">
                   <div>
-                    <p className="text-sm font-semibold">Guests</p>
-                    <p className="text-xs text-sand-600">Adults, children & infants</p>
+                    <p className="text-sm font-semibold">{t("search.guests")}</p>
+                    <p className="text-xs text-sand-600">{t("search.guestsSub")}</p>
                   </div>
                   <div className="flex items-center gap-3">
                     <button
@@ -167,10 +180,10 @@ export default function Header() {
                   }}
                   className="text-sm font-semibold underline"
                 >
-                  Clear all
+                  {t("search.clear")}
                 </button>
                 <button onClick={submit} className="brand-bg flex items-center gap-2 rounded-full px-6 py-3 text-sm font-bold text-white shadow-lg">
-                  <SearchIcon className="h-4 w-4" /> Search
+                  <SearchIcon className="h-4 w-4" /> {t("search.search")}
                 </button>
               </div>
             </div>
@@ -179,21 +192,27 @@ export default function Header() {
 
         <nav className="hidden items-center gap-1 text-sm font-semibold text-ink/80 md:flex">
           <Link href="/listings" className="rounded-full px-3 py-2 hover:bg-sand-100">
-            Explore stays
+            {t("nav.explore")}
           </Link>
           <Link href="/listings?region=Maasai+Mara" className="rounded-full px-3 py-2 hover:bg-sand-100">
-            Maasai Mara
+            {t("nav.mara")}
           </Link>
           <Link href="/listings?q=Diani" className="rounded-full px-3 py-2 hover:bg-sand-100">
-            Diani Beach
+            {t("nav.diani")}
           </Link>
           <Link href="/bookings" className="rounded-full px-3 py-2 hover:bg-sand-100">
-            My bookings
+            {t("nav.bookings")}
           </Link>
-          <button className="flex items-center gap-2 rounded-full border border-sand-300 py-2 pl-3 pr-1 hover:shadow-md">
+          <button
+            onClick={() => setLocale(locale === "sw" ? "en" : "sw")}
+            title={locale === "sw" ? t("header.en") : t("header.sw")}
+            className="flex items-center gap-2 rounded-full border border-sand-300 py-2 pl-3 pr-2 transition hover:shadow-md"
+          >
             <GlobeIcon className="h-4 w-4" />
-            <MenuIcon className="h-4 w-4" />
-            <span className="brand-bg grid h-7 w-7 place-items-center rounded-full text-xs text-white">A</span>
+            <span className="text-xs font-bold uppercase tracking-wide">EN · SW</span>
+            <span className="brand-bg grid h-7 w-7 place-items-center rounded-full text-xs font-bold text-white">
+              {locale === "sw" ? "SW" : "EN"}
+            </span>
           </button>
         </nav>
       </div>

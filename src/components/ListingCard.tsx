@@ -8,6 +8,7 @@ import { formatKes } from "@/lib/format";
 import SmartImage from "./SmartImage";
 import { HeartIcon, StarIcon } from "./icons";
 import { toggleWishlist, useWishlist } from "@/lib/wishlist";
+import { useT } from "./Localized";
 
 const TIER_ICON: Record<string, string> = {
   budget: "💸",
@@ -16,6 +17,7 @@ const TIER_ICON: Record<string, string> = {
 };
 
 export default function ListingCard({ listing }: { listing: PublicListing }) {
+  const t = useT();
   const [index, setIndex] = useState(0);
   const liked = useWishlist(listing.id);
   const timer = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -60,13 +62,21 @@ export default function ListingCard({ listing }: { listing: PublicListing }) {
 
         {listing.superhost && (
           <span className="absolute left-3 top-3 rounded-full bg-white/95 px-3 py-1 text-xs font-bold shadow">
-            Superhost
+            🏆 {t("superhost")}
           </span>
         )}
 
         {tier && (
           <span className="absolute bottom-3 left-3 rounded-full bg-white/95 px-2.5 py-1 text-[11px] font-bold shadow">
-            {TIER_ICON[tier.key] ?? "🏷️"} {tier.label}
+            {TIER_ICON[tier.key] ?? "🏷️"} {t("tiers." + tier.key as "tiers.budget")}
+          </span>
+        )}
+
+        {(listing.monthlyDiscountPct > 0 || listing.groupDiscountPct > 0 || listing.airportTransferKes > 0) && (
+          <span className="absolute bottom-3 right-3 flex items-center gap-1 rounded-full bg-ink/85 px-2.5 py-1 text-[11px] font-bold text-white shadow">
+            {listing.monthlyDiscountPct > 0 && "📅"}
+            {listing.groupDiscountPct > 0 && "👥"}
+            {listing.airportTransferKes > 0 && "🚗"}
           </span>
         )}
 
@@ -113,7 +123,7 @@ export default function ListingCard({ listing }: { listing: PublicListing }) {
         </p>
         <p className="mt-1.5 text-sm">
           <span className="font-bold text-ink">{formatKes(listing.pricePerNight)}</span>{" "}
-          <span className="text-sand-700">night</span>
+          <span className="text-sand-700">{t("widget.night")}</span>
         </p>
       </div>
     </Link>

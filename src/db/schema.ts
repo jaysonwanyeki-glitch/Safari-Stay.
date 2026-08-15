@@ -20,6 +20,15 @@ export const listings = pgTable("listings", {
   hostSince: integer("host_since").notNull(),
   hostBio: text("host_bio"),
   superhost: boolean("superhost").default(false).notNull(),
+  hostPhone: text("host_phone"), // +2547… — powers WhatsApp "ask the host"
+  // Stima & Maji honesty: real power / water / Wi-Fi situation per property.
+  powerBackup: text("power_backup").notNull().default("grid"), // generator | solar | grid
+  waterSource: text("water_source").notNull().default("municipal"), // borehole | municipal | treated
+  wifiType: text("wifi_type").notNull().default("fibre"), // fibre | starlink | hotspot | none
+  // Kenyan pricing realities: long stays & big groups negotiate.
+  monthlyDiscountPct: integer("monthly_discount_pct").notNull().default(0),
+  groupDiscountPct: integer("group_discount_pct").notNull().default(0),
+  airportTransferKes: integer("airport_transfer_kes").notNull().default(0),
   pricePerNight: integer("price_per_night").notNull(), // Green/low season rate (KES)
   peakPricePerNight: integer("peak_price_per_night").default(0).notNull(), // Peak-season rate (KES)
   cleaningFee: integer("cleaning_fee").default(0).notNull(),
@@ -67,10 +76,16 @@ export const bookings = pgTable("bookings", {
     .references(() => listings.id, { onDelete: "cascade" }),
   guestName: text("guest_name").notNull(),
   guestEmail: text("guest_email").notNull(),
+  guestPhone: text("guest_phone"), // +2547… — identity verification & M-Pesa refunds
   checkIn: text("check_in").notNull(),
   checkOut: text("check_out").notNull(),
   guests: integer("guests").notNull(),
   nights: integer("nights").notNull(),
   totalKes: integer("total_kes").notNull(),
+  // Kenyan payment reality: M-Pesa (Lipa na M-Pesa) or pay at the property.
+  paymentMethod: text("payment_method").notNull().default("property"), // mpesa | property
+  status: text("status").notNull().default("confirmed"), // pending | confirmed | completed | cancelled
+  transferRequested: boolean("transfer_requested").notNull().default(false),
+  transferFee: integer("transfer_fee").notNull().default(0),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
 });

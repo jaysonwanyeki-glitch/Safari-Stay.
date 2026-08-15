@@ -110,3 +110,58 @@ export const AMENITY_GROUPS: { title: string; icon: string; match: RegExp }[] = 
 ];
 
 export const SERVICE_FEE_RATE = 0.07; // 7% platform fee on the room subtotal
+
+// ---------------------------------------------------------------- Stima & Maji
+// "Stima & Maji" honesty cards — power, water and Wi-Fi truth per property.
+// Every Kenyan traveller has been burned by a 12-hour blackout or a dry tap at
+// a "luxury" lodge; we tell the truth instead of burying it in fine print.
+
+export type UtilityInfo = {
+  key: "power" | "water" | "wifi";
+  icon: string;
+  title: string;
+  label: string;
+  honest: string;
+};
+
+const POWER: Record<string, { icon: string; label: string; honest: string }> = {
+  generator: { icon: "⚡", label: "Backup generator", honest: "Stima inaweza kukatika — but a generator kicks in fast." },
+  solar: { icon: "☀️", label: "Solar-powered", honest: "Off-grid solar — power all day, even when the grid drops." },
+  grid: { icon: "🔌", label: "Grid power only", honest: "No backup on site — check with the host before a heatwave." },
+};
+
+const WATER: Record<string, { icon: string; label: string; honest: string }> = {
+  borehole: { icon: "💧", label: "Borehole water", honest: "Own well — taps keep running even through rationing." },
+  municipal: { icon: "🚰", label: "Municipal supply", honest: "City water with storage tanks on site." },
+  treated: { icon: "🧪", label: "Treated water", honest: "Filtered & treated — safe to drink from the tap." },
+};
+
+const WIFI: Record<string, { icon: string; label: string; honest: string }> = {
+  fibre: { icon: "📶", label: "Fibre Wi-Fi", honest: "Fast, reliable fibre — video calls are fine." },
+  starlink: { icon: "🛰️", label: "Starlink Wi-Fi", honest: "Satellite internet — solid even in the bush." },
+  hotspot: { icon: "📱", label: "Mobile hotspot", honest: "Limited hotspot — fine for messages, not for streaming." },
+  none: { icon: "📴", label: "No Wi-Fi", honest: "Deliberately unplugged — bring a book, not a laptop." },
+};
+
+export function stimaMaji(listing: {
+  powerBackup: string;
+  waterSource: string;
+  wifiType: string;
+}): UtilityInfo[] {
+  const power = POWER[listing.powerBackup] ?? POWER.grid;
+  const water = WATER[listing.waterSource] ?? WATER.municipal;
+  const wifi = WIFI[listing.wifiType] ?? WIFI.hotspot;
+  return [
+    { key: "power", icon: power.icon, title: "Power", label: power.label, honest: power.honest },
+    { key: "water", icon: water.icon, title: "Water", label: water.label, honest: water.honest },
+    { key: "wifi", icon: wifi.icon, title: "Wi-Fi", label: wifi.label, honest: wifi.honest },
+  ];
+}
+
+/** WhatsApp "ask the host" link with a pre-filled message. */
+export function waLink(listing: { hostPhone: string | null; title: string }): string | null {
+  if (!listing.hostPhone) return null;
+  const digits = listing.hostPhone.replace(/[^\d]/g, "");
+  const text = encodeURIComponent(`Habari! I'm interested in ${listing.title} on SafariStay — could you tell me more?`);
+  return `https://wa.me/${digits}?text=${text}`;
+}

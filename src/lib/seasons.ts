@@ -60,3 +60,50 @@ export function stayTotal(fields: RateFields, checkIn: string, checkOut: string)
   }
   return total;
 }
+
+// ------------------------------------------------------------ Kenyan pricing
+// Real Kenyan BNB reality: hosts negotiate. Long stays (28+ nights, a common
+// remote-work / family-relocation pattern) and big groups (weddings, harambee
+// gatherings, chama retreats) get published discounts — shown transparently.
+
+export type DiscountInfo = {
+  subtotal: number;
+  discount: number;
+  discountLabel: string | null;
+  nights: number;
+};
+
+/**
+ * Room subtotal with Kenya-style negotiated discounts applied.
+ * Monthly stays (28+ nights) take priority over group discounts.
+ */
+export function stayPricing(
+  fields: RateFields & { monthlyDiscountPct: number; groupDiscountPct: number },
+  checkIn: string,
+  checkOut: string,
+  guests: number,
+): DiscountInfo {
+  const start = new Date(checkIn + "T00:00:00");
+  const end = new Date(checkOut + "T00:00:00");
+  if (isNaN(start.getTime()) || isNaN(end.getTime()) || end <= start) {
+    return { subtotal: 0, discount: 0, discountLabel: null, nights: 0 };
+  }
+  const nights = Math.round((end.getTime() - start.getTime()) / 86400000);
+  let subtotal = 0;
+  for (let i = 0; i < nights; i++) {
+    const day = new Date(start);
+    day.setDate(start.getDate() + i);
+    subtotal += priceForDate(fields, day);
+  }
+
+  let discount = 0;
+  let discountLabel: string | null = null;
+  if (nights >= 28 && fields.monthlyDiscountPct > 0) {
+    discount = Math.round((subtotal * fields.monthlyDiscountPct) / 100);
+    discountLabel = `Monthly rate (28+ nights) · ${fields.monthlyDiscountPct}% off`;
+  } else if (guests >= 5 && fields.groupDiscountPct > 0) {
+    discount = Math.round((subtotal * fields.groupDiscountPct) / 100);
+    discountLabel = `Group rate (${guests} guests) · ${fields.groupDiscountPct}% off`;
+  }
+  return { subtotal, discount, discountLabel, nights };
+}

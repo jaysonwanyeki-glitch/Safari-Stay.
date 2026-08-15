@@ -8,6 +8,7 @@ import {
   gte,
   ilike,
   lte,
+  ne,
   or,
   sql,
   type SQL,
@@ -27,6 +28,13 @@ export type PublicListing = {
   hostSince: number;
   hostBio: string | null;
   superhost: boolean;
+  hostPhone: string | null;
+  powerBackup: string;
+  waterSource: string;
+  wifiType: string;
+  monthlyDiscountPct: number;
+  groupDiscountPct: number;
+  airportTransferKes: number;
   pricePerNight: number;
   peakPricePerNight: number;
   cleaningFee: number;
@@ -107,6 +115,13 @@ function toPublic(row: ListingRow): PublicListing {
     hostSince: row.hostSince,
     hostBio: row.hostBio,
     superhost: row.superhost,
+    hostPhone: row.hostPhone,
+    powerBackup: row.powerBackup,
+    waterSource: row.waterSource,
+    wifiType: row.wifiType,
+    monthlyDiscountPct: row.monthlyDiscountPct,
+    groupDiscountPct: row.groupDiscountPct,
+    airportTransferKes: row.airportTransferKes,
     pricePerNight: row.pricePerNight,
     peakPricePerNight: row.peakPricePerNight,
     cleaningFee: row.cleaningFee,
@@ -230,14 +245,16 @@ export async function getListingBySlug(slug: string): Promise<PublicListing | nu
   return toPublic(rows[0]);
 }
 
-/** All booking date ranges for a listing — powers the availability strip. */
+/** All booking date ranges for a listing — powers the availability strip.
+ * Cancelled bookings are excluded: cancelling frees the dates again. */
 export async function getBookedRanges(listingId: number): Promise<BookedRange[]> {
   const rows = await db
     .select({ checkIn: bookings.checkIn, checkOut: bookings.checkOut })
     .from(bookings)
-    .where(eq(bookings.listingId, listingId));
+    .where(and(eq(bookings.listingId, listingId), ne(bookings.status, "cancelled")));
   return rows;
 }
+
 
 export async function getReviewsForListing(listingId: number): Promise<PublicReview[]> {
   const rows = await db

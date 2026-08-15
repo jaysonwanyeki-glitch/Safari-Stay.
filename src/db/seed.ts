@@ -598,9 +598,41 @@ const RAW_LISTINGS: SeedListing[] = [
   },
 ];
 
+// Kenyan reality per property: host WhatsApp line, Stima & Maji honesty,
+// negotiated rates (monthly / groups) and airport-transfer pricing.
+const KENYA_META: Record<
+  string,
+  {
+    hostPhone: string;
+    powerBackup: "generator" | "solar" | "grid";
+    waterSource: "borehole" | "municipal" | "treated";
+    wifiType: "fibre" | "starlink" | "hotspot" | "none";
+    monthlyDiscountPct: number;
+    groupDiscountPct: number;
+    airportTransferKes: number;
+  }
+> = {
+  "angama-mara": { hostPhone: "+254722100101", powerBackup: "solar", waterSource: "borehole", wifiType: "fibre", monthlyDiscountPct: 10, groupDiscountPct: 0, airportTransferKes: 3500 },
+  "governors-camp": { hostPhone: "+254722100102", powerBackup: "generator", waterSource: "borehole", wifiType: "hotspot", monthlyDiscountPct: 15, groupDiscountPct: 0, airportTransferKes: 3500 },
+  "entim-camp": { hostPhone: "+254722100103", powerBackup: "solar", waterSource: "borehole", wifiType: "hotspot", monthlyDiscountPct: 15, groupDiscountPct: 0, airportTransferKes: 3500 },
+  "amboseli-serena-safari-lodge": { hostPhone: "+254722100104", powerBackup: "generator", waterSource: "municipal", wifiType: "fibre", monthlyDiscountPct: 15, groupDiscountPct: 10, airportTransferKes: 4000 },
+  "elephant-bedroom-camp": { hostPhone: "+254722100105", powerBackup: "solar", waterSource: "borehole", wifiType: "fibre", monthlyDiscountPct: 10, groupDiscountPct: 0, airportTransferKes: 4500 },
+  "ol-pejeta-bush-camp": { hostPhone: "+254722100106", powerBackup: "solar", waterSource: "borehole", wifiType: "fibre", monthlyDiscountPct: 15, groupDiscountPct: 5, airportTransferKes: 4500 },
+  "finch-hattons": { hostPhone: "+254722100107", powerBackup: "generator", waterSource: "borehole", wifiType: "fibre", monthlyDiscountPct: 10, groupDiscountPct: 0, airportTransferKes: 5000 },
+  "serena-mountain-lodge": { hostPhone: "+254722100108", powerBackup: "generator", waterSource: "municipal", wifiType: "hotspot", monthlyDiscountPct: 15, groupDiscountPct: 10, airportTransferKes: 4000 },
+  "lake-naivasha-sopa-resort": { hostPhone: "+254722100109", powerBackup: "generator", waterSource: "municipal", wifiType: "fibre", monthlyDiscountPct: 15, groupDiscountPct: 10, airportTransferKes: 3500 },
+  "giraffe-manor": { hostPhone: "+254722100110", powerBackup: "generator", waterSource: "municipal", wifiType: "fibre", monthlyDiscountPct: 10, groupDiscountPct: 0, airportTransferKes: 2500 },
+  "kinondo-kwetu": { hostPhone: "+254722100111", powerBackup: "generator", waterSource: "borehole", wifiType: "none", monthlyDiscountPct: 20, groupDiscountPct: 5, airportTransferKes: 2000 },
+  "diani-sea-lodge": { hostPhone: "+254722100112", powerBackup: "generator", waterSource: "municipal", wifiType: "fibre", monthlyDiscountPct: 20, groupDiscountPct: 10, airportTransferKes: 2000 },
+  "the-sands-at-nomad": { hostPhone: "+254722100113", powerBackup: "generator", waterSource: "municipal", wifiType: "fibre", monthlyDiscountPct: 15, groupDiscountPct: 10, airportTransferKes: 2000 },
+  "medina-palms-watamu": { hostPhone: "+254722100114", powerBackup: "generator", waterSource: "borehole", wifiType: "fibre", monthlyDiscountPct: 20, groupDiscountPct: 10, airportTransferKes: 2000 },
+  "peponi-hotel-lamu": { hostPhone: "+254722100115", powerBackup: "generator", waterSource: "municipal", wifiType: "hotspot", monthlyDiscountPct: 15, groupDiscountPct: 5, airportTransferKes: 0 },
+};
+
 // Derive the price tier from the low-season rate (budget / mid / luxury).
 const LISTINGS: SeedListing[] = RAW_LISTINGS.map((l) => ({
   ...l,
+  ...(KENYA_META[l.slug!] ?? {}),
   priceTier: tierForPrice(l.pricePerNight ?? 0),
 }));
 
@@ -684,17 +716,17 @@ const addDays = (base: Date, days: number) => {
   return d;
 };
 
-const GUESTS: [string, string][] = [
-  ["Jane Muthoni", "jane.muthoni@gmail.com"],
-  ["Peter Kipchoge", "peter.kipchoge@gmail.com"],
-  ["Amina Yusuf", "amina.yusuf@gmail.com"],
-  ["Daniel Wafula", "daniel.wafula@gmail.com"],
-  ["Lucy Wanjiru", "lucy.wanjiru@gmail.com"],
-  ["Michael Otieno", "michael.otieno@gmail.com"],
-  ["Sarah Njeri", "sarah.njeri@gmail.com"],
-  ["Brian Kamau", "brian.kamau@gmail.com"],
-  ["Grace Achieng", "grace.achieng@gmail.com"],
-  ["Kevin Mwangi", "kevin.mwangi@gmail.com"],
+const GUESTS: [string, string, string][] = [
+  ["Jane Muthoni", "jane.muthoni@gmail.com", "+254711100001"],
+  ["Peter Kipchoge", "peter.kipchoge@gmail.com", "+254711100002"],
+  ["Amina Yusuf", "amina.yusuf@gmail.com", "+254711100003"],
+  ["Daniel Wafula", "daniel.wafula@gmail.com", "+254711100004"],
+  ["Lucy Wanjiru", "lucy.wanjiru@gmail.com", "+254711100005"],
+  ["Michael Otieno", "michael.otieno@gmail.com", "+254711100006"],
+  ["Sarah Njeri", "sarah.njeri@gmail.com", "+254711100007"],
+  ["Brian Kamau", "brian.kamau@gmail.com", "+254711100008"],
+  ["Grace Achieng", "grace.achieng@gmail.com", "+254711100009"],
+  ["Kevin Mwangi", "kevin.mwangi@gmail.com", "+254711100010"],
 ];
 
 type SeedBooking = typeof bookings.$inferInsert;
@@ -707,7 +739,7 @@ function generateBookings(idBySlug: Map<string, number>, rates: Map<string, { pr
   for (const [slug, listingId] of idBySlug) {
     const rnd = mulberry32(2000 + listingId);
     const rate = rates.get(slug)!;
-    const make = (checkIn: Date, nights: number) => {
+    const make = (checkIn: Date, nights: number, past: boolean) => {
       const checkOut = addDays(checkIn, nights);
       const guest = GUESTS[Math.floor(rnd() * GUESTS.length)];
       const guests = 2 + Math.floor(rnd() * Math.max(1, rate.maxGuests - 1));
@@ -715,11 +747,14 @@ function generateBookings(idBySlug: Map<string, number>, rates: Map<string, { pr
         listingId,
         guestName: guest[0],
         guestEmail: guest[1],
+        guestPhone: guest[2],
         checkIn: iso(checkIn),
         checkOut: iso(checkOut),
         guests,
         nights,
         totalKes: rate.price * nights + rate.cleaning,
+        paymentMethod: rnd() > 0.35 ? "mpesa" : "property",
+        status: past ? "completed" : "confirmed",
       };
     };
 
@@ -727,14 +762,14 @@ function generateBookings(idBySlug: Map<string, number>, rates: Map<string, { pr
     const pastCount = 5 + Math.floor(rnd() * 5);
     for (let i = 0; i < pastCount; i++) {
       const daysAgo = 1 + Math.floor(rnd() * 60);
-      out.push(make(addDays(today, -daysAgo), 2 + Math.floor(rnd() * 4)));
+      out.push(make(addDays(today, -daysAgo), 2 + Math.floor(rnd() * 4), true));
     }
 
     // Future stays → availability (unavailable dates)
     const futureCount = 5 + Math.floor(rnd() * 5);
     for (let i = 0; i < futureCount; i++) {
       const daysAhead = 7 + Math.floor(rnd() * 90);
-      out.push(make(addDays(today, daysAhead), 2 + Math.floor(rnd() * 5)));
+      out.push(make(addDays(today, daysAhead), 2 + Math.floor(rnd() * 5), false));
     }
   }
   return out;

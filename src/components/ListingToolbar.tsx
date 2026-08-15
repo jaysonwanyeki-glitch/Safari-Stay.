@@ -4,19 +4,21 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import CategoryBar from "./CategoryBar";
 import { PRICE_TIERS, REGIONS, TIER_LABEL } from "@/lib/constants";
+import { useT } from "./Localized";
 
 type Params = Record<string, string | undefined>;
 
-const SORTS = [
-  { value: "recommended", label: "Recommended" },
-  { value: "rating", label: "Top rated" },
-  { value: "reviews", label: "Most reviewed" },
-  { value: "price_asc", label: "Price: low to high" },
-  { value: "price_desc", label: "Price: high to low" },
+const SORTS: { value: string; key: "toolbar.recommended" | "toolbar.topRated" | "toolbar.mostReviewed" | "toolbar.priceLow" | "toolbar.priceHigh" }[] = [
+  { value: "recommended", key: "toolbar.recommended" },
+  { value: "rating", key: "toolbar.topRated" },
+  { value: "reviews", key: "toolbar.mostReviewed" },
+  { value: "price_asc", key: "toolbar.priceLow" },
+  { value: "price_desc", key: "toolbar.priceHigh" },
 ];
 
 export default function ListingToolbar({ params, count }: { params: Params; count: number }) {
   const router = useRouter();
+  const t = useT();
   const [filters, setFilters] = useState(false);
 
   const fRegion = params.region ?? "";
@@ -50,7 +52,7 @@ export default function ListingToolbar({ params, count }: { params: Params; coun
   if (fGuests > 0) activeChips.push(`${fGuests}+ guests`);
   if (fMin || fMax) activeChips.push(`KES ${fMin || "0"}–${fMax || "∞"}`);
 
-  const tierTabs = [{ key: "", label: "All prices", icon: "🏷️" }, ...PRICE_TIERS];
+  const tierTabs = [{ key: "", label: t("toolbar.allPrices"), icon: "🏷️" }, ...PRICE_TIERS.map((p) => ({ ...p, label: t("tiers." + p.key as "tiers.budget") }))];
 
   return (
     <div className="sticky top-[64px] z-30 -mx-4 border-b border-sand-200 bg-sand-50/95 px-4 backdrop-blur sm:-mx-6 sm:px-6">
@@ -65,7 +67,7 @@ export default function ListingToolbar({ params, count }: { params: Params; coun
             className="flex items-center gap-2 rounded-xl border border-sand-400 px-3 py-2 text-sm font-semibold hover:border-ink"
           >
             <span>⚙️</span>
-            <span className="hidden sm:inline">Filters</span>
+            <span className="hidden sm:inline">{t("toolbar.filters")}</span>
             {activeChips.length > 0 && (
               <span className="brand-bg grid h-5 min-w-5 place-items-center rounded-full px-1 text-[10px] font-bold text-white">
                 {activeChips.length}
@@ -79,7 +81,7 @@ export default function ListingToolbar({ params, count }: { params: Params; coun
           >
             {SORTS.map((s) => (
               <option key={s.value} value={s.value}>
-                {s.label}
+                {t(s.key)}
               </option>
             ))}
           </select>
@@ -107,23 +109,23 @@ export default function ListingToolbar({ params, count }: { params: Params; coun
       </div>
 
       <p className="pb-2 text-sm text-sand-700">
-        {count} {count === 1 ? "stay" : "stays"}
-        {fRegion ? ` in ${fRegion}` : " across Kenya"}
+        {count} {t("toolbar.staysCount")}
+        {fRegion ? ` ${t("toolbar.inRegion", { region: fRegion })}` : ` ${t("toolbar.acrossKenya")}`}
         {fTier ? ` · ${TIER_LABEL[fTier]}` : ""}
       </p>
 
       {filters && (
         <div className="fixed inset-0 z-[60] flex items-end bg-black/50 sm:items-center sm:justify-center" onClick={() => setFilters(false)}>
           <div className="w-full max-w-md rounded-t-2xl bg-white p-6 sm:rounded-2xl" onClick={(e) => e.stopPropagation()}>
-            <h3 className="mb-4 text-lg font-bold">Filters</h3>
+            <h3 className="mb-4 text-lg font-bold">{t("toolbar.filters")}</h3>
 
-            <label className="mb-1 block text-sm font-semibold">Region</label>
+            <label className="mb-1 block text-sm font-semibold">{t("toolbar.region")}</label>
             <select
               id="filter-region"
               defaultValue={fRegion}
               className="mb-4 w-full rounded-xl border border-sand-400 px-3 py-2 text-sm"
             >
-              <option value="">All regions</option>
+              <option value="">{t("toolbar.allRegions")}</option>
               {REGIONS.map((r) => (
                 <option key={r.name} value={r.name}>
                   {r.name}
@@ -131,39 +133,42 @@ export default function ListingToolbar({ params, count }: { params: Params; coun
               ))}
             </select>
 
-            <label className="mb-1 block text-sm font-semibold">Price tier</label>
+            <label className="mb-1 block text-sm font-semibold">{t("toolbar.priceTier")}</label>
             <select
               id="filter-tier"
               defaultValue={fTier}
               className="mb-4 w-full rounded-xl border border-sand-400 px-3 py-2 text-sm"
             >
-              <option value="">Any tier</option>
-              {PRICE_TIERS.map((t) => (
-                <option key={t.key} value={t.key}>
-                  {t.label} — {t.blurb}
+              <option value="">{t("toolbar.anyTier")}</option>
+              {PRICE_TIERS.map((tier) => (
+                <option key={tier.key} value={tier.key}>
+                  {t("tiers." + tier.key as "tiers.budget")} —{" "}
+                  {t(
+                    (tier.key === "budget" ? "tiers.blurbBudget" : tier.key === "mid" ? "tiers.blurbMid" : "tiers.blurbLuxury") as "tiers.blurbBudget",
+                  )}
                 </option>
               ))}
             </select>
 
-            <label className="mb-1 block text-sm font-semibold">Price per night (KES)</label>
+            <label className="mb-1 block text-sm font-semibold">{t("toolbar.priceNight")}</label>
             <div className="mb-4 grid grid-cols-2 gap-3">
               <input
                 id="filter-min"
                 type="number"
-                placeholder="Min"
+                placeholder={t("toolbar.min")}
                 defaultValue={fMin}
                 className="rounded-xl border border-sand-400 px-3 py-2 text-sm"
               />
               <input
                 id="filter-max"
                 type="number"
-                placeholder="Max"
+                placeholder={t("toolbar.max")}
                 defaultValue={fMax}
                 className="rounded-xl border border-sand-400 px-3 py-2 text-sm"
               />
             </div>
 
-            <label className="mb-1 block text-sm font-semibold">Guests</label>
+            <label className="mb-1 block text-sm font-semibold">{t("search.guests")}</label>
             <input
               id="filter-guests"
               type="number"
@@ -178,7 +183,7 @@ export default function ListingToolbar({ params, count }: { params: Params; coun
                 onClick={() => pushMany({ region: "", tier: "", guests: "", minPrice: "", maxPrice: "" })}
                 className="rounded-xl px-4 py-2 text-sm font-bold underline"
               >
-                Clear all
+                {t("search.clear")}
               </button>
               <button
                 onClick={() => {
@@ -192,7 +197,7 @@ export default function ListingToolbar({ params, count }: { params: Params; coun
                 }}
                 className="brand-bg rounded-xl px-6 py-2 text-sm font-bold text-white"
               >
-                Show stays
+                {t("toolbar.showStays")}
               </button>
             </div>
           </div>

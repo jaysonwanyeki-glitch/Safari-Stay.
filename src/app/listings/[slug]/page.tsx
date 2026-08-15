@@ -8,8 +8,9 @@ import SingleMap from "@/components/SingleMap";
 import ListingCard from "@/components/ListingCard";
 import WishlistButton from "@/components/WishlistButton";
 import { MapPinIcon, ShareIcon, StarIcon } from "@/components/icons";
-import { AMENITY_GROUPS, placeLabel } from "@/lib/constants";
+import { AMENITY_GROUPS, placeLabel, stimaMaji, waLink } from "@/lib/constants";
 import { formatKes } from "@/lib/format";
+import { T } from "@/components/Localized";
 import {
   getBookedRanges,
   getListingBySlug,
@@ -122,7 +123,7 @@ export default async function ListingDetailPage({
             </span>
             {listing.superhost && (
               <span className="rounded-full bg-ember-50 px-2 py-0.5 text-xs font-bold text-brand">
-                🏆 Superhost
+                🏆 <T k="superhost" />
               </span>
             )}
             <span className="rounded-full bg-sand-100 px-2 py-0.5 text-xs font-bold text-ink">
@@ -131,6 +132,21 @@ export default async function ListingDetailPage({
             {usdNightly > 0 && (
               <span className="rounded-full bg-gold-100 px-2 py-0.5 text-xs font-bold text-ink">
                 ≈ {formatUsd(usdNightly)}/night
+              </span>
+            )}
+            {listing.monthlyDiscountPct > 0 && (
+              <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-bold text-emerald-700">
+                📅 <T k="detail.monthlyBadge" />
+              </span>
+            )}
+            {listing.groupDiscountPct > 0 && (
+              <span className="rounded-full bg-sky-50 px-2 py-0.5 text-xs font-bold text-sky-700">
+                👥 <T k="detail.groupBadge" />
+              </span>
+            )}
+            {listing.airportTransferKes > 0 && (
+              <span className="rounded-full bg-gold-100 px-2 py-0.5 text-xs font-bold text-ink">
+                <T k="detail.transferChip" vars={{ n: formatKes(listing.airportTransferKes) }} />
               </span>
             )}
           </div>
@@ -153,7 +169,7 @@ export default async function ListingDetailPage({
             <div className="flex items-center justify-between gap-4">
               <div>
                 <h2 className="font-display text-xl font-bold">
-                  {place} hosted by {listing.hostName}
+                  <T k="detail.hostedBy" vars={{ place, host: listing.hostName }} />
                 </h2>
                 <p className="mt-1 text-sm text-sand-700">
                   {listing.maxGuests} guests · {listing.bedrooms} bedroom
@@ -168,16 +184,35 @@ export default async function ListingDetailPage({
             </div>
             {listing.hostBio && (
               <p className="mt-3 text-sm text-sand-700">
-                <span className="font-semibold">Meet your host — </span>
-                {listing.hostBio} Host since {listing.hostSince}.
+                <span className="font-semibold">
+                  <T k="detail.meetHost" />
+                </span>
+                {listing.hostBio} <T k="detail.since" vars={{ year: listing.hostSince }} />
               </p>
             )}
+            <div className="mt-4 flex flex-wrap items-center gap-2">
+              {waLink(listing) && (
+                <a
+                  href={waLink(listing)!}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-1.5 rounded-full bg-[#25D366] px-4 py-2 text-sm font-bold text-white shadow transition hover:brightness-95"
+                >
+                  💬 <T k="widget.contactHost" />
+                </a>
+              )}
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs font-bold text-emerald-700">
+                ✅ <T k="detail.verifiedHost" />
+              </span>
+            </div>
           </div>
 
           {/* Highlights */}
           {listing.highlights && listing.highlights.length > 0 && (
             <div className="border-b border-sand-200 py-6">
-              <h3 className="mb-3 text-lg font-bold">What makes this stay special</h3>
+              <h3 className="mb-3 text-lg font-bold">
+                <T k="detail.special" />
+              </h3>
               <ul className="grid gap-3 sm:grid-cols-2">
                 {listing.highlights.map((h) => (
                   <li key={h} className="flex items-start gap-2 text-sm">
@@ -193,10 +228,16 @@ export default async function ListingDetailPage({
           <div className="border-b border-sand-200 py-6">
             <p className="text-[15px] leading-relaxed text-sand-800">{listing.description}</p>
             <p className="mt-4 text-sm text-sand-600">
-              Green-season rate{" "}
-              <span className="font-semibold text-ink">{formatKes(listing.pricePerNight)}</span> per night · peak season{" "}
+              <T k="detail.greenRate" />{" "}
+              <span className="font-semibold text-ink">{formatKes(listing.pricePerNight)}</span>{" "}
+              <T k="widget.night" /> · <T k="detail.peakSeason" />{" "}
               <span className="font-semibold text-ink">{formatKes(listing.peakPricePerNight)}</span>
-              {listing.cleaningFee > 0 ? ` · cleaning fee ${formatKes(listing.cleaningFee)}` : ""}.
+              {listing.cleaningFee > 0 ? (
+                <>
+                  {" "}· <T k="widget.cleaningFee" /> {formatKes(listing.cleaningFee)}
+                </>
+              ) : null}
+              .
             </p>
           </div>
 
@@ -205,7 +246,9 @@ export default async function ListingDetailPage({
             <div className="border-b border-sand-200 py-6">
               <div className="flex items-center justify-between gap-4 rounded-2xl border border-sand-200 bg-white/70 p-4">
                 <div>
-                  <p className="text-sm font-bold">Live conditions at {listing.locationName}</p>
+                  <p className="text-sm font-bold">
+                    <T k="detail.weatherTitle" /> {listing.locationName}
+                  </p>
                   <p className="mt-0.5 text-sm text-sand-700">
                     {weather.icon} {weather.label} · {weather.humidity}% humidity · {weather.wind} km/h wind
                   </p>
@@ -217,7 +260,9 @@ export default async function ListingDetailPage({
 
           {/* Amenities */}
           <div className="border-b border-sand-200 py-6">
-            <h3 className="mb-4 text-lg font-bold">What this place offers</h3>
+            <h3 className="mb-4 text-lg font-bold">
+              <T k="detail.offers" />
+            </h3>
             <div className="grid gap-x-8 gap-y-6 sm:grid-cols-2">
               {amenityGroups.map((g) => (
                 <div key={g.title}>
@@ -234,6 +279,25 @@ export default async function ListingDetailPage({
               ))}
             </div>
           </div>
+
+          {/* Stima & Maji — honest utilities */}
+          <div className="border-b border-sand-200 py-6">
+            <h3 className="text-lg font-bold">
+              <T k="detail.stimaTitle" />
+            </h3>
+            <p className="mt-1 text-sm text-sand-600">
+              <T k="detail.stimaSub" />
+            </p>
+            <div className="mt-4 grid gap-3 sm:grid-cols-3">
+              {stimaMaji(listing).map((u) => (
+                <div key={u.key} className="rounded-xl border border-sand-200 bg-white/70 p-4">
+                  <div className="text-2xl">{u.icon}</div>
+                  <p className="mt-2 text-sm font-bold">{u.label}</p>
+                  <p className="mt-1 text-xs leading-snug text-sand-600">{u.honest}</p>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
 
         {/* Booking widget + availability strip */}
@@ -241,7 +305,7 @@ export default async function ListingDetailPage({
           <div className="sticky top-24">
             <BookingWidget listing={listing} />
             <p className="mt-3 text-center text-xs text-sand-600">
-              🔒 This is a demo reservation flow — no payment is taken.
+              <T k="widget.demoNote" />
             </p>
           </div>
           <div className="mt-6">
@@ -252,15 +316,16 @@ export default async function ListingDetailPage({
 
       {/* Map */}
       <section className="border-t border-sand-200 py-8">
-        <h2 className="mb-1 font-display text-xl font-bold">Where you&apos;ll be</h2>
+        <h2 className="mb-1 font-display text-xl font-bold">
+          <T k="detail.whereTitle" />
+        </h2>
         {listing.landmark && (
           <p className="mb-2 inline-block rounded-full bg-ember-50 px-3 py-1 text-sm font-bold text-brand">
-            📍 Moments from {listing.landmark}
+            📍 <T k="detail.near" /> {listing.landmark}
           </p>
         )}
         <p className="mb-4 text-sm text-sand-700">
-          {listing.locationName}, {listing.region}, Kenya. The exact pin is shared once your booking is
-          confirmed — many stays sit on private conservancy land.
+          {listing.locationName}, {listing.region}, Kenya. <T k="detail.pinNote" />
         </p>
         {listing.website && (
           <a
@@ -269,7 +334,7 @@ export default async function ListingDetailPage({
             rel="noreferrer"
             className="mb-4 inline-block text-sm font-semibold text-brand underline hover:text-brand-dark"
           >
-            View official website ↗
+            <T k="detail.website" />
           </a>
         )}
         <SingleMap point={marker} />
@@ -298,7 +363,9 @@ export default async function ListingDetailPage({
 
           <div className="grid gap-6 sm:grid-cols-2">
             {reviews.length === 0 ? (
-              <p className="text-sm text-sand-600">No reviews yet — be the first to stay!</p>
+              <p className="text-sm text-sand-600">
+                <T k="detail.reviewsEmpty" />
+              </p>
             ) : (
               reviews.map((r) => (
                 <div key={r.id}>
@@ -331,19 +398,29 @@ export default async function ListingDetailPage({
 
       {/* Things to know */}
       <section className="border-t border-sand-200 py-8">
-        <h2 className="mb-4 font-display text-xl font-bold">Things to know</h2>
+        <h2 className="mb-4 font-display text-xl font-bold">
+          <T k="detail.thingsTitle" />
+        </h2>
         <div className="grid gap-6 sm:grid-cols-3">
           <div>
-            <h3 className="mb-2 font-bold">House rules</h3>
+            <h3 className="mb-2 font-bold">
+              <T k="detail.houseRules" />
+            </h3>
             <ul className="space-y-1 text-sm text-sand-700">
-              <li>Check-in from {listing.checkInTime}</li>
-              <li>Check-out by {listing.checkOutTime}</li>
+              <li>
+                <T k="search.checkIn" /> from {listing.checkInTime}
+              </li>
+              <li>
+                <T k="search.checkOut" /> by {listing.checkOutTime}
+              </li>
               <li>{listing.maxGuests} guests maximum</li>
               <li>No smoking indoors</li>
             </ul>
           </div>
           <div>
-            <h3 className="mb-2 font-bold">Health &amp; safety</h3>
+            <h3 className="mb-2 font-bold">
+              <T k="detail.health" />
+            </h3>
             <ul className="space-y-1 text-sm text-sand-700">
               <li>Trained guides on game drives</li>
               <li>Malaria precautions recommended</li>
@@ -352,9 +429,13 @@ export default async function ListingDetailPage({
             </ul>
           </div>
           <div>
-            <h3 className="mb-2 font-bold">Cancellation</h3>
+            <h3 className="mb-2 font-bold">
+              <T k="detail.cancellation" />
+            </h3>
             <ul className="space-y-1 text-sm text-sand-700">
-              <li>Free cancellation up to 48 hours</li>
+              <li>
+                <T k="detail.freeCancel" /> — <T k="bookings.refundNote" />
+              </li>
               <li>Review the full policy at checkout</li>
               <li>Conservancy &amp; park fees may apply</li>
             </ul>
@@ -364,7 +445,9 @@ export default async function ListingDetailPage({
 
       {/* Nearby */}
       <section className="border-t border-sand-200 py-8">
-        <h2 className="mb-5 font-display text-xl font-bold">Other stays you might like</h2>
+        <h2 className="mb-5 font-display text-xl font-bold">
+          <T k="detail.nearbyTitle" />
+        </h2>
         <div className="grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-2 lg:grid-cols-4">
           {nearby.map((l) => (
             <ListingCard key={l.id} listing={l} />
