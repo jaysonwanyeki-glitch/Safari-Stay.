@@ -1,9 +1,10 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import type { PublicListing } from "@/lib/data";
 import { SERVICE_FEE_RATE } from "@/lib/constants";
-import { formatKes } from "@/lib/format";
+import { bookingRef, formatKes } from "@/lib/format";
 import { SEASON_BLURB, SEASON_EMOJI, SEASON_LABEL, stayTotal } from "@/lib/seasons";
 import { formatUsd } from "@/lib/currency";
 import { CloseIcon, StarIcon } from "./icons";
@@ -135,7 +136,7 @@ export default function BookingWidget({ listing }: { listing: PublicListing }) {
         <div className="text-4xl">🎉</div>
         <h3 className="mt-2 text-lg font-bold text-emerald-900">Booking confirmed!</h3>
         <p className="mt-1 text-sm text-emerald-800">
-          Karibu! Reference <span className="font-mono font-bold">SS-{String(booking.id).padStart(5, "0")}</span>
+          Karibu! Reference <span className="font-mono font-bold">{bookingRef(booking.id)}</span>
         </p>
         <p className="mt-2 text-sm text-emerald-800">
           {booking.nights} night{booking.nights > 1 ? "s" : ""} · {formatKes(booking.total)} total
@@ -143,6 +144,12 @@ export default function BookingWidget({ listing }: { listing: PublicListing }) {
         <p className="mt-1 text-xs text-emerald-700">
           A confirmation has been sent to {email}. Your host {listing.hostName} will be in touch.
         </p>
+        <Link
+          href={`/bookings?ref=${bookingRef(booking.id)}`}
+          className="mt-3 inline-block text-sm font-semibold text-brand underline hover:text-brand-dark"
+        >
+          View your booking →
+        </Link>
         <button
           onClick={() => {
             setStatus("idle");

@@ -21,6 +21,11 @@ export default function Footer() {
         <div>
           <h4 className="mb-3 text-sm font-bold uppercase tracking-wider text-gold-300">Support</h4>
           <ul className="space-y-2 text-sm text-sand-300">
+            <li>
+              <Link href="/bookings" className="transition hover:text-white hover:underline">
+                My bookings
+              </Link>
+            </li>
             <li>Help Centre</li>
             <li>Safety information</li>
             <li>Cancellation options</li>

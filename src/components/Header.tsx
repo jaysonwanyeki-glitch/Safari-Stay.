@@ -187,6 +187,9 @@ export default function Header() {
           <Link href="/listings?q=Diani" className="rounded-full px-3 py-2 hover:bg-sand-100">
             Diani Beach
           </Link>
+          <Link href="/bookings" className="rounded-full px-3 py-2 hover:bg-sand-100">
+            My bookings
+          </Link>
           <button className="flex items-center gap-2 rounded-full border border-sand-300 py-2 pl-3 pr-1 hover:shadow-md">
             <GlobeIcon className="h-4 w-4" />
             <MenuIcon className="h-4 w-4" />

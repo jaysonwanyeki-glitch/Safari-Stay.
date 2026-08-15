@@ -3,6 +3,11 @@ export function formatKes(value: number): string {
   return `KES ${Math.round(value).toLocaleString("en-KE")}`;
 }
 
+/** Booking reference code, e.g. 12 -> "SS-00012". */
+export function bookingRef(id: number): string {
+  return `SS-${String(id).padStart(5, "0")}`;
+}
+
 /** Compact money for map badges, e.g. 18500 -> "KES 18k" */
 export function formatKesShort(value: number): string {
   if (value >= 1000) {
