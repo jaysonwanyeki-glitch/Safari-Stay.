@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import CategoryBar from "./CategoryBar";
-import { PRICE_TIERS, REGIONS } from "@/lib/constants";
+import { KES_BANDS, PRICE_TIERS, REGIONS } from "@/lib/constants";
 import { useT } from "./Localized";
 
 type Params = Record<string, string | undefined>;
@@ -89,6 +89,22 @@ export default function ListingToolbar({ params, count }: { params: Params; coun
       </div>
 
       <div className="no-scrollbar -mt-1 flex gap-2 overflow-x-auto pb-1">
+        {KES_BANDS.map((n) => {
+          const active = (params.maxPrice ?? "") === String(n);
+          return (
+            <button
+              key={n}
+              onClick={() => pushOne("maxPrice", active ? "" : String(n))}
+              className={`flex shrink-0 items-center gap-1 rounded-full border px-3 py-1.5 text-xs font-bold transition ${
+                active
+                  ? "border-emerald-500 bg-emerald-50 text-emerald-700"
+                  : "border-sand-400 text-sand-800 hover:border-emerald-500"
+              }`}
+            >
+              💸 {t("toolbar.underKes", { n: n.toLocaleString("en-KE") })}
+            </button>
+          );
+        })}
         {tierTabs.map((t) => {
           const active = (params.tier ?? "") === t.key;
           return (

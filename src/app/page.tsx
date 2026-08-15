@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { CATEGORIES, DIANI_SPOTS, PRICE_TIERS, REGIONS } from "@/lib/constants";
+import { CATEGORIES, DIANI_SPOTS, PRICE_TIERS, REGIONS, WEEKEND_ROUTES } from "@/lib/constants";
 import {
   getBudgetListings,
   getFeaturedListings,
@@ -33,6 +33,8 @@ const CAT_TKEY: Record<string, TKey> = {
   cottage: "categories.cottage",
   bush_villa: "categories.bush_villa",
   guesthouse: "categories.guesthouse",
+  backpacker: "categories.backpacker",
+  campsite: "categories.campsite",
   tented_camp: "categories.tented_camp",
   eco_camp: "categories.eco_camp",
   farm_stay: "categories.farm_stay",
@@ -108,6 +110,12 @@ export default async function HomePage() {
                 className="rounded-full bg-white/95 px-7 py-3.5 text-sm font-bold text-ink shadow-xl"
               >
                 <T k="hero.mara" />
+              </Link>
+              <Link
+                href="/listings?maxPrice=5000"
+                className="rounded-full bg-gold-300/95 px-7 py-3.5 text-sm font-bold text-ink shadow-xl"
+              >
+                <T k="hero.local" />
               </Link>
             </div>
 
@@ -277,6 +285,49 @@ export default async function HomePage() {
                 <h3 className="text-lg font-bold leading-tight">{s.name}</h3>
                 <p className="text-xs text-white/85">{s.blurb}</p>
               </div>
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      {/* Weekend escapes from Nairobi */}
+      <section className="mx-auto max-w-7xl px-6 py-12">
+        <h2 className="font-display mb-1 text-2xl font-bold sm:text-3xl">
+          <T k="weekend.title" />
+        </h2>
+        <p className="mb-6 text-sand-600">
+          <T k="weekend.sub" />
+        </p>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {WEEKEND_ROUTES.map((r) => (
+            <Link
+              key={r.name}
+              href={`/listings?q=${encodeURIComponent(r.q)}`}
+              className="group rounded-2xl border border-sand-300 bg-white/85 p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-brand hover:shadow-xl"
+            >
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-bold">{r.name}</h3>
+                <span className="text-2xl">🚌</span>
+              </div>
+              <p className="mt-2 text-xs leading-relaxed text-sand-700">
+                <span className="font-semibold text-ink">
+                  <T k="weekend.transport" />:
+                </span>{" "}
+                {r.transport}
+              </p>
+              <p className="mt-1 text-xs text-sand-700">
+                <span className="font-semibold text-ink">
+                  <T k="weekend.stayFrom" />:
+                </span>{" "}
+                {r.stayFrom}
+              </p>
+              <p className="mt-2.5 text-sm font-extrabold text-brand">
+                💸 <T k="weekend.allIn" /> {r.total}
+              </p>
+              <p className="mt-1 text-xs text-sand-600">{r.note}</p>
+              <p className="mt-3 text-sm font-semibold text-brand group-hover:underline">
+                <T k="weekend.seeStays" /> →
+              </p>
             </Link>
           ))}
         </div>

@@ -12,6 +12,8 @@ const CAT_TKEY: Record<string, TKey> = {
   cottage: "categories.cottage",
   bush_villa: "categories.bush_villa",
   guesthouse: "categories.guesthouse",
+  backpacker: "categories.backpacker",
+  campsite: "categories.campsite",
   tented_camp: "categories.tented_camp",
   eco_camp: "categories.eco_camp",
   farm_stay: "categories.farm_stay",

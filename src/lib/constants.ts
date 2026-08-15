@@ -9,13 +9,15 @@ export type Category = {
 /** Primary filter chips shown in the category bar. */
 export const CATEGORIES: Category[] = [
   { key: "all", label: "All stays", icon: "🌍" },
+  { key: "guesthouse", label: "Guesthouses", icon: "🏠" },
+  { key: "apartment", label: "Apartments", icon: "🏢" },
+  { key: "backpacker", label: "Backpackers", icon: "🎒" },
+  { key: "campsite", label: "Campsites", icon: "⛺" },
   { key: "safari_lodge", label: "Safari lodges", icon: "🦁" },
   { key: "beach_resort", label: "Beach resorts", icon: "🏖️" },
   { key: "beach_villa", label: "Beach villas", icon: "🏝️" },
-  { key: "apartment", label: "Apartments", icon: "🏢" },
   { key: "cottage", label: "Cottages", icon: "🏡" },
   { key: "bush_villa", label: "Bush homes", icon: "🌿" },
-  { key: "guesthouse", label: "Guesthouses", icon: "🏠" },
   { key: "tented_camp", label: "Tented camps", icon: "🏕️" },
   { key: "eco_camp", label: "Eco stays", icon: "🌱" },
   { key: "farm_stay", label: "Farm stays", icon: "🚜" },
@@ -31,6 +33,8 @@ export const PROPERTY_TYPE_LABELS: Record<string, string> = {
   beach_villa: "Beach villa",
   apartment: "Apartment",
   guesthouse: "Guesthouse",
+  backpacker: "Backpacker stay",
+  campsite: "Campsite",
   cottage: "Cottage",
   farm_stay: "Farm stay",
 };
@@ -42,22 +46,27 @@ export function placeLabel(roomType: string, propertyType: string): string {
   if (propertyType === "safari_lodge") return "Safari lodge suite";
   if (propertyType === "beach_resort") return "Resort room";
   if (propertyType === "tented_camp" || propertyType === "eco_camp") return `Luxury ${t.toLowerCase()} tent`;
+  if (propertyType === "backpacker") return "Backpacker stay";
+  if (propertyType === "campsite") return "Campsite pitch or banda";
   return `Entire ${t.toLowerCase()}`;
 }
 
-/** Price-tier quick filters (Budget / Mid / Luxury). */
+/** Price-tier quick filters (Budget / Mid / Luxury) — tuned for local KES rates. */
 export const PRICE_TIERS = [
-  { key: "budget", label: "Budget", icon: "💸", blurb: "Under KES 20,000 / night" },
-  { key: "mid", label: "Mid-range", icon: "💰", blurb: "KES 20,000 – 60,000" },
-  { key: "luxury", label: "Luxury", icon: "👑", blurb: "KES 60,000 and up" },
+  { key: "budget", label: "Budget", icon: "💸", blurb: "Under KES 10,000 / night" },
+  { key: "mid", label: "Mid-range", icon: "💰", blurb: "KES 10,000 – 50,000" },
+  { key: "luxury", label: "Luxury", icon: "👑", blurb: "KES 50,000 and up" },
 ] as const;
 
 /** Derive a price tier from a nightly KES rate. */
 export function tierForPrice(price: number): "budget" | "mid" | "luxury" {
-  if (price < 20000) return "budget";
-  if (price < 60000) return "mid";
+  if (price < 10000) return "budget";
+  if (price < 50000) return "mid";
   return "luxury";
 }
+
+/** Quick KES price-band chips for local travelers (maxPrice filter). */
+export const KES_BANDS = [3000, 5000, 8000] as const;
 
 export const TIER_LABEL: Record<string, string> = {
   budget: "Budget",
@@ -86,6 +95,44 @@ export const REGIONS: RegionInfo[] = [
   { name: "Mount Kenya", blurb: "Alpine forest, glacial peaks and thundering waterfalls.", parks: ["Mount Kenya NP", "Aberdares", "Meru NP"], image: px(20975726) },
   { name: "Coast", blurb: "Powder-white beaches from Diani to Watamu and Lamu.", parks: ["Diani Beach", "Watamu", "Malindi", "Lamu"], image: px(27742235) },
   { name: "Nairobi", blurb: "A buzzing capital with a national park on its doorstep.", parks: ["Nairobi NP", "Karen", "Lang'ata"], image: px(33473218) },
+  { name: "Western Kenya", blurb: "Lakeside Kisumu and the highland towns of the West.", parks: ["Kisumu", "Eldoret", "Lake Victoria"], image: px(20653797) },
+  { name: "Eastern Kenya", blurb: "Ukambani hills, Thika falls and the Machakos–Kangundo corridor.", parks: ["Machakos", "Thika", "Kangundo"], image: px(5306140) },
+];
+
+/** Real weekend getaways from Nairobi — transport + stay budgeted (research 2025–26). */
+export const WEEKEND_ROUTES = [
+  {
+    name: "Naivasha",
+    q: "Naivasha",
+    transport: "Matatu via Naivasha Rd · KES 800–1,300 return",
+    stayFrom: "KES 1,000 / night",
+    total: "From KES 3,900 all-in",
+    note: "Cycle Hells Gate, camp by the lake, hippos at dusk.",
+  },
+  {
+    name: "Nakuru",
+    q: "Nakuru",
+    transport: "Matatu via Nakuru–Nairobi Hwy · KES 800–1,400 return",
+    stayFrom: "KES 2,500 / night",
+    total: "From KES 3,600 all-in",
+    note: "Menengai crater hikes and Hyrax Hill — zero entry fees.",
+  },
+  {
+    name: "Nanyuki",
+    q: "Nanyuki",
+    transport: "Madaraka Express commuter or matatu · from KES 400",
+    stayFrom: "KES 2,500 / night",
+    total: "From KES 3,200 all-in",
+    note: "Mt Kenya foothills, Mau Mau caves and Thomson's Falls nearby.",
+  },
+  {
+    name: "Machakos",
+    q: "Machakos",
+    transport: "Matatu from Machakos Country Bus Station · KES 400–800 return",
+    stayFrom: "KES 1,800 / night",
+    total: "From KES 3,450 all-in",
+    note: "People's Park is free — picnics, walks and budget staycations.",
+  },
 ];
 
 /** Real landmarks & regions (links to ?q= search). */
