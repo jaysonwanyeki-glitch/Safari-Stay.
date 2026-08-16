@@ -53,6 +53,7 @@ const TSAVO = [
 
 // ---------------------------------------------------------------- North & Rift
 const SAMBURU = [
+  site({ name: "Samburu National Reserve", type: "conservancy", distance: "the camp sits inside it", blurb: "Elephant, lion and the rare Grevy's zebra on the Ewaso Ng'iro — the reserve itself.", emoji: "🦁" }),
   site({ name: "Ewaso Ng'iro River", type: "lake", distance: "alongside the camp", blurb: "The permanent river that anchors Samburu's wildlife — elephant and crocodile daily.", emoji: "🐊" }),
   site({ name: "Buffalo Springs National Reserve", type: "conservancy", distance: "adjoining, ~15 min", blurb: "Samburu's twin reserve across the river — Grevy's zebra and reticulated giraffe.", emoji: "🦓" }),
   site({ name: "Shaba National Reserve", type: "conservancy", distance: "~40 min", blurb: "Joy Adamson's 'Born Free' country — scenic hills and the rare Beisa oryx.", emoji: "🦌" }),
@@ -284,3 +285,32 @@ export const NEARBY_SITES: Record<string, NearbySite[]> = {
 export function nearbySitesFor(slug: string): NearbySite[] | undefined {
   return NEARBY_SITES[slug];
 }
+
+/** The names of the sites a listing is near (for matching/search). */
+export function siteNamesFor(slug: string): string[] {
+  return (NEARBY_SITES[slug] ?? []).map((s) => s.name);
+}
+
+/** Does a listing's nearby set mention the query? Case-insensitive substring. */
+export function matchesNear(slug: string, query: string): boolean {
+  const term = query.trim().toLowerCase();
+  if (!term) return false;
+  return siteNamesFor(slug).some((n) => n.toLowerCase().includes(term));
+}
+
+/**
+ * Curated "near …" quick filters for the listings page. Each term is a real
+ * site name from the nearby data (short enough to read as a chip).
+ */
+export const POPULAR_SITES: { name: string; emoji: string }[] = [
+  { name: "Naboisho", emoji: "🦁" },
+  { name: "Ol Pejeta", emoji: "🦏" },
+  { name: "Samburu", emoji: "🦓" },
+  { name: "Amboseli", emoji: "🐘" },
+  { name: "Lake Nakuru", emoji: "🦩" },
+  { name: "Hells Gate", emoji: "🚴" },
+  { name: "Watamu Marine", emoji: "🐢" },
+  { name: "Diani Beach", emoji: "🏖️" },
+  { name: "Kakamega Forest", emoji: "🌳" },
+  { name: "Mount Kenya", emoji: "🏔️" },
+];

@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import CategoryBar from "./CategoryBar";
 import { KES_BANDS, PRICE_TIERS, REGIONS } from "@/lib/constants";
+import { POPULAR_SITES } from "@/lib/nearby";
 import { useT } from "./Localized";
 
 type Params = Record<string, string | undefined>;
@@ -26,6 +27,7 @@ export default function ListingToolbar({ params, count }: { params: Params; coun
   const fGuests = Number(params.guests ?? "0");
   const fMin = params.minPrice ?? "";
   const fMax = params.maxPrice ?? "";
+  const fNear = params.near ?? "";
 
   function pushOne(key: string, value: string) {
     const sp = new URLSearchParams();
@@ -48,6 +50,7 @@ export default function ListingToolbar({ params, count }: { params: Params; coun
   const activeType = params.type ?? "all";
   const activeChips: string[] = [];
   if (fRegion) activeChips.push(fRegion);
+  if (fNear) activeChips.push(`📍 ${fNear}`);
   if (fTier) activeChips.push(t("tiers." + fTier as "tiers.budget"));
   if (fGuests > 0) activeChips.push(t("toolbar.guestsPlus", { n: fGuests }));
   if (fMin || fMax) activeChips.push(t("toolbar.kesRange", { min: fMin || "0", max: fMax || "∞" }));
@@ -124,9 +127,34 @@ export default function ListingToolbar({ params, count }: { params: Params; coun
         })}
       </div>
 
+      {/* Near a conservancy or site — quick chips from the nearby-sites data */}
+      <div className="no-scrollbar -mt-1 flex items-center gap-2 overflow-x-auto pb-1">
+        <span className="shrink-0 text-xs font-bold uppercase tracking-wide text-sand-500">
+          🦁 {t("toolbar.near")}
+        </span>
+        {POPULAR_SITES.map((s) => {
+          const active = (params.near ?? "").toLowerCase() === s.name.toLowerCase();
+          return (
+            <button
+              key={s.name}
+              onClick={() => pushOne("near", active ? "" : s.name)}
+              className={`flex shrink-0 items-center gap-1 rounded-full border px-3 py-1.5 text-xs font-bold transition ${
+                active
+                  ? "border-emerald-500 bg-emerald-50 text-emerald-700"
+                  : "border-sand-400 text-sand-800 hover:border-emerald-500"
+              }`}
+            >
+              <span>{s.emoji}</span>
+              {s.name}
+            </button>
+          );
+        })}
+      </div>
+
       <p className="pb-2 text-sm text-sand-700">
         {count} {t("toolbar.staysCount")}
         {fRegion ? ` ${t("toolbar.inRegion", { region: fRegion })}` : ` ${t("toolbar.acrossKenya")}`}
+        {fNear ? ` · ${t("toolbar.nearSuffix", { place: fNear })}` : ""}
         {fTier ? ` · ${t("tiers." + fTier as "tiers.budget")}` : ""}
       </p>
 
@@ -134,6 +162,15 @@ export default function ListingToolbar({ params, count }: { params: Params; coun
         <div className="fixed inset-0 z-[60] flex items-end bg-black/50 sm:items-center sm:justify-center" onClick={() => setFilters(false)}>
           <div className="w-full max-w-md rounded-t-2xl bg-white p-6 sm:rounded-2xl" onClick={(e) => e.stopPropagation()}>
             <h3 className="mb-4 text-lg font-bold">{t("toolbar.filters")}</h3>
+
+            <label className="mb-1 block text-sm font-semibold">{t("toolbar.near")}</label>
+            <input
+              id="filter-near"
+              type="text"
+              placeholder={t("toolbar.nearPlaceholder")}
+              defaultValue={fNear}
+              className="mb-4 w-full rounded-xl border border-sand-400 px-3 py-2 text-sm"
+            />
 
             <label className="mb-1 block text-sm font-semibold">{t("toolbar.region")}</label>
             <select
@@ -196,7 +233,7 @@ export default function ListingToolbar({ params, count }: { params: Params; coun
 
             <div className="flex justify-between">
               <button
-                onClick={() => pushMany({ region: "", tier: "", guests: "", minPrice: "", maxPrice: "" })}
+                onClick={() => pushMany({ region: "", tier: "", guests: "", minPrice: "", maxPrice: "", near: "" })}
                 className="rounded-xl px-4 py-2 text-sm font-bold underline"
               >
                 {t("search.clear")}
@@ -208,7 +245,8 @@ export default function ListingToolbar({ params, count }: { params: Params; coun
                   const min = (document.getElementById("filter-min") as HTMLInputElement).value;
                   const max = (document.getElementById("filter-max") as HTMLInputElement).value;
                   const guests = (document.getElementById("filter-guests") as HTMLInputElement).value;
-                  pushMany({ region, tier, minPrice: min, maxPrice: max, guests });
+                  const near = (document.getElementById("filter-near") as HTMLInputElement).value;
+                  pushMany({ region, tier, minPrice: min, maxPrice: max, guests, near });
                   setFilters(false);
                 }}
                 className="brand-bg rounded-xl px-6 py-2 text-sm font-bold text-white"

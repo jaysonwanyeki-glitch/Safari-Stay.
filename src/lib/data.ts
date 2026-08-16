@@ -1,15 +1,14 @@
 import { db } from "@/db";
 import { bookings, listings, reviews } from "@/db/schema";
+import { matchesNear } from "@/lib/nearby";
 import {
   and,
   asc,
   desc,
   eq,
   gte,
-  ilike,
   lte,
   ne,
-  or,
   sql,
   type SQL,
 } from "drizzle-orm";
@@ -96,7 +95,10 @@ export type ListFilter = {
   guests?: number;
   minPrice?: number;
   maxPrice?: number;
+  /** Free-text search — matches titles, places AND nearby conservancies/sites. */
   q?: string;
+  /** "Near" filter — matches the listing's nearby conservancies & sites. */
+  near?: string;
   sort?: ListSort;
 };
 
@@ -168,19 +170,6 @@ export async function getListings(filter: ListFilter = {}): Promise<PublicListin
   if (filter.maxPrice && filter.maxPrice > 0) {
     conditions.push(lte(listings.pricePerNight, filter.maxPrice));
   }
-  if (filter.q && filter.q.trim()) {
-    const term = `%${filter.q.trim()}%`;
-    conditions.push(
-      or(
-        ilike(listings.title, term),
-        ilike(listings.locationName, term),
-        ilike(listings.region, term),
-        ilike(listings.description, term),
-        ilike(listings.landmark, term),
-      )!,
-    );
-  }
-
   const sort = filter.sort ?? "recommended";
   const orderBys: SQL[] = [];
   switch (sort) {
@@ -206,7 +195,30 @@ export async function getListings(filter: ListFilter = {}): Promise<PublicListin
     .where(conditions.length ? and(...conditions) : undefined)
     .orderBy(...orderBys);
 
-  return rows.map(toPublic);
+  let items = rows.map(toPublic);
+
+  // Text & "near" matching runs in memory against the full row set — the
+  // catalogue is small and the nearby sites live in code (src/lib/nearby.ts),
+  // not the database. Free-text q also matches conservancy/site names, so
+  // "Naboisho" or "Hells Gate" in the search box finds the stays near them.
+  const q = filter.q?.trim().toLowerCase();
+  if (q) {
+    items = items.filter((l) =>
+      [l.title, l.locationName, l.region, l.county ?? "", l.landmark ?? "", l.description]
+        .some((f) => f.toLowerCase().includes(q)) || matchesNear(l.slug, q),
+    );
+  }
+  const near = filter.near?.trim().toLowerCase();
+  if (near) {
+    items = items.filter(
+      (l) =>
+        matchesNear(l.slug, near) ||
+        (l.landmark ?? "").toLowerCase().includes(near) ||
+        l.locationName.toLowerCase().includes(near),
+    );
+  }
+
+  return items;
 }
 
 export async function getFeaturedListings(limit = 8): Promise<PublicListing[]> {

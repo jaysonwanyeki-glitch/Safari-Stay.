@@ -1,6 +1,7 @@
 import Link from "next/link";
 import ListingCard from "@/components/ListingCard";
 import ListingToolbar from "@/components/ListingToolbar";
+import { T } from "@/components/Localized";
 import ResultsMap from "@/components/ResultsMap";
 import { getListings, toMarkers } from "@/lib/data";
 
@@ -24,6 +25,7 @@ export default async function ListingsPage({
     minPrice: Number(pick("minPrice") ?? 0) || undefined,
     maxPrice: Number(pick("maxPrice") ?? 0) || undefined,
     q: pick("q"),
+    near: pick("near"),
     sort: pick("sort") as
       | "recommended"
       | "price_asc"
@@ -45,13 +47,16 @@ export default async function ListingsPage({
     maxPrice: pick("maxPrice"),
     sort: pick("sort"),
     q: pick("q"),
+    near: pick("near"),
   };
 
   const heading = filter.region
     ? `${filter.region}`
-    : filter.type === "all"
-      ? "All stays in Kenya"
-      : "Stays in Kenya";
+    : filter.near
+      ? <T k="listings.nearHeading" vars={{ place: filter.near }} />
+      : filter.type === "all"
+        ? "All stays in Kenya"
+        : "Stays in Kenya";
 
   return (
     <div className="mx-auto max-w-7xl px-4 pb-24 sm:px-6">

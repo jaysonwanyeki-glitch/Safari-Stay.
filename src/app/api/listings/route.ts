@@ -13,6 +13,7 @@ export async function GET(req: NextRequest) {
     minPrice: Number(sp.get("minPrice") || 0) || undefined,
     maxPrice: Number(sp.get("maxPrice") || 0) || undefined,
     q: sp.get("q") || undefined,
+    near: sp.get("near") || undefined,
     sort: (sp.get("sort") as
       | "recommended"
       | "price_asc"
