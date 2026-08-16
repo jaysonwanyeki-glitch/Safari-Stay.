@@ -408,6 +408,12 @@ export default async function ListingDetailPage({
           <p className="mt-4 rounded-xl border border-sand-200 bg-sand-50 px-4 py-3 text-xs text-sand-700">
             ℹ️ <T k="detail.nearbySitesNote" />
           </p>
+          <Link
+            href="/sites"
+            className="mt-3 inline-block text-sm font-semibold text-brand underline hover:text-brand-dark"
+          >
+            <T k="detail.sitesMore" />
+          </Link>
         </section>
       )}
 

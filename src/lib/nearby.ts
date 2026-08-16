@@ -298,6 +298,45 @@ export function matchesNear(slug: string, query: string): boolean {
   return siteNamesFor(slug).some((n) => n.toLowerCase().includes(term));
 }
 
+/** A site with every listing that is near it — powers the /sites directory. */
+export type DirectorySite = NearbySite & { slugs: string[] };
+
+/**
+ * Reverse index: every distinct site name → the listing slugs near it.
+ * Same-named sites shared across a destination (e.g. the Mara group) collapse
+ * into one directory entry; duplicate slugs within a listing are dropped.
+ */
+export function siteDirectory(): DirectorySite[] {
+  const byName = new Map<string, DirectorySite>();
+  for (const [slug, sites] of Object.entries(NEARBY_SITES)) {
+    for (const s of sites) {
+      const key = s.name.toLowerCase();
+      const existing = byName.get(key);
+      if (existing) {
+        if (!existing.slugs.includes(slug)) existing.slugs.push(slug);
+      } else {
+        byName.set(key, { ...s, slugs: [slug] });
+      }
+    }
+  }
+  return [...byName.values()].sort((a, b) => a.name.localeCompare(b.name));
+}
+
+/** Emoji used for directory section headers, keyed by site type. */
+export const SITE_TYPE_EMOJI: Record<SiteType, string> = {
+  conservancy: "🦁",
+  national_park: "🦒",
+  marine: "🐢",
+  forest: "🌳",
+  beach: "🏖️",
+  lake: "💧",
+  waterfall: "💦",
+  cultural: "🛕",
+  historical: "🏛️",
+  viewpoint: "⛰️",
+  town: "🛒",
+};
+
 /**
  * Curated "near …" quick filters for the listings page. Each term is a real
  * site name from the nearby data (short enough to read as a chip).

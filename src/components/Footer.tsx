@@ -56,6 +56,11 @@ export default function Footer() {
                 <T k="footer.travel" />
               </Link>
             </li>
+            <li>
+              <Link href="/sites" className="transition hover:text-white hover:underline">
+                <T k="footer.sites" />
+              </Link>
+            </li>
           </ul>
         </div>
         <div>
