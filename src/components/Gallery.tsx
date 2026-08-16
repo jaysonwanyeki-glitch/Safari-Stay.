@@ -4,6 +4,24 @@ import { useCallback, useEffect, useState } from "react";
 import SmartImage from "./SmartImage";
 import { ChevronLeft, ChevronRight, CloseIcon } from "./icons";
 
+/**
+ * Masonry collage of the listing photos.
+ * Desktop: 4-col grid — hero (2×2), four singles, a wide strip, two singles.
+ * Mobile:  2-col grid — full-width hero, pairs, full-width strip, pairs.
+ * Any tile opens the lightbox at that photo; the lightbox handles more photos
+ * than the collage shows (the last tile gets a "+N more" overlay then).
+ */
+const SPANS = [
+  "col-span-2 row-span-1 sm:col-span-2 sm:row-span-2", // 0 — hero
+  "col-span-1",
+  "col-span-1",
+  "col-span-1",
+  "col-span-1",
+  "col-span-2", // 5 — wide strip
+  "col-span-1",
+  "col-span-1",
+];
+
 export default function Gallery({ images, title }: { images: string[]; title: string }) {
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState(0);
@@ -27,39 +45,49 @@ export default function Gallery({ images, title }: { images: string[]; title: st
     };
   }, [open, close, next, prev]);
 
-  const small = images.slice(1, 5);
+  const tiles = images.slice(0, 8);
 
   return (
     <>
-      <div className="grid grid-cols-4 grid-rows-2 gap-2 overflow-hidden rounded-3xl">
+      <div className="grid grid-cols-2 gap-2 overflow-hidden rounded-3xl sm:grid-cols-4">
+        {tiles.map((src, i) => {
+          const isLast = i === tiles.length - 1;
+          const hasMore = isLast && images.length > tiles.length;
+          return (
+            <button
+              key={src + i}
+              onClick={() => {
+                setActive(i);
+                setOpen(true);
+              }}
+              className={`card-zoom relative min-h-[120px] ${SPANS[i] ?? "col-span-1"} ${
+                i === 0 ? "min-h-[240px] sm:min-h-[440px]" : ""
+              } ${hasMore ? "group" : ""}`}
+            >
+              <SmartImage
+                src={src}
+                alt={i === 0 ? title : `${title} ${i + 1}`}
+                className="absolute inset-0 h-full w-full object-cover"
+              />
+              {hasMore && (
+                <span className="absolute inset-0 grid place-items-center bg-black/35 text-sm font-bold text-white opacity-0 transition group-hover:opacity-100">
+                  +{images.length - tiles.length} more
+                </span>
+              )}
+            </button>
+          );
+        })}
+      </div>
+      <div className="mt-3 flex justify-center sm:justify-end">
         <button
-          onClick={() => { setActive(0); setOpen(true); }}
-          className="card-zoom relative col-span-2 row-span-2 h-full min-h-[260px] overflow-hidden sm:min-h-[440px]"
+          onClick={() => {
+            setActive(0);
+            setOpen(true);
+          }}
+          className="rounded-xl border border-ink px-4 py-2 text-sm font-bold shadow-sm hover:bg-ink hover:text-white"
         >
-          <SmartImage src={images[0]} alt={title} className="absolute inset-0 h-full w-full object-cover" />
+          📷 Show all photos ({images.length})
         </button>
-        {small.map((src, i) => (
-          <button
-            key={src + i}
-            onClick={() => { setActive(i + 1); setOpen(true); }}
-            className={`card-zoom relative hidden overflow-hidden sm:block ${i === 3 ? "group" : ""}`}
-          >
-            <SmartImage src={src} alt={`${title} ${i + 2}`} className="absolute inset-0 h-full w-full object-cover" />
-            {i === 3 && images.length > 5 && (
-              <span className="absolute inset-0 grid place-items-center bg-black/35 text-sm font-bold text-white opacity-0 transition group-hover:opacity-100">
-                +{images.length - 5} more
-              </span>
-            )}
-          </button>
-        ))}
-        <div className="col-span-4 mt-3 flex justify-center sm:col-span-4 sm:mt-0 sm:block sm:justify-end">
-          <button
-            onClick={() => { setActive(0); setOpen(true); }}
-            className="rounded-xl border border-ink px-4 py-2 text-sm font-bold shadow-sm hover:bg-ink hover:text-white"
-          >
-            📷 Show all photos
-          </button>
-        </div>
       </div>
 
       {open && (

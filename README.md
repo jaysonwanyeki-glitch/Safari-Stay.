@@ -13,7 +13,7 @@ A Kenyan safari accommodation marketplace — beach villas, bush homes, tented c
 - **Airport transfers** — optional pickup add-on priced per destination at checkout.
 - **Group & monthly rates** — negotiated Kenyan pricing: 28+ night stays and 5+ guest groups get published discounts.
 - **WhatsApp "ask the host"** — one tap opens a pre-filled WhatsApp chat with the host's line.
-- **Real data** — 15 real Kenyan properties with published seasonal rates (KES), real coordinates, live weather (Open-Meteo) and live KES⇄USD FX (ExchangeRate-API).
+- **Real data** — 40 real Kenyan properties across 24 counties with published seasonal rates (KES), real coordinates, live weather (Open-Meteo) and live KES⇄USD FX (ExchangeRate-API).
 - **Availability everywhere** — booked dates block the calendar, power the click-to-fill availability strip, and get enforced server-side (409 on clashes; cancelling frees the dates).
 
 ## Getting started
@@ -28,7 +28,7 @@ cp .env.example .env      # then set DATABASE_URL=postgres://...
 
 # 3. Create the schema + seed real data
 npm run db:push           # drizzle-kit push --force (creates tables/columns)
-npm run db:seed           # 15 listings, 34 reviews, 204 bookings
+npm run db:seed           # 40 listings, 72 reviews, 553 bookings
 
 # 4. Run
 npm run dev               # http://localhost:3000
@@ -37,6 +37,29 @@ npm run dev               # http://localhost:3000
 npm run lint              # eslint
 npm run typecheck         # tsc --noEmit
 npm run build && npm run start
+```
+
+### Troubleshooting (Windows)
+
+Next.js 16's Turbopack occasionally fails on Windows with a
+`TurbopackInternalError` like `failed to create junction point … The file exists
+(os error 80)` when it re-links `node_modules` inside `.next` — it's
+intermittent and happens in both `npm run dev` and `npm run build`.
+
+Fix: stop any running dev server, delete `.next` **with a native Windows tool**
+(Git Bash's `rm -rf` silently fails to remove Turbopack's junctions), then retry:
+
+```powershell
+# stop the dev server (Ctrl+C / taskkill) first, then in PowerShell:
+Remove-Item -Recurse -Force .next
+npm run build   # or npm run dev — usually works on the retry
+```
+
+If it keeps happening, use the **webpack** build instead — it avoids the
+Turbopack junction code entirely and is reliable on Windows:
+
+```bash
+npm run build:webpack   # next build --webpack
 ```
 
 `.env.example`:

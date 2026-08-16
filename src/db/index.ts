@@ -18,7 +18,22 @@ export function getPool(): Pool {
     );
   }
   if (!globalForDb.__safariPool) {
-    globalForDb.__safariPool = new Pool({ connectionString: url });
+    // Neon-style URLs carry sslmode=require, which pg v8.20+ prints a warning
+    // about (it treats prefer/require/verify-ca as aliases for verify-full).
+    // Normalize it into an explicit ssl option so the terminal stays quiet and
+    // the TLS behavior is the same as before (verify-full against Neon).
+    let connectionString = url;
+    let ssl: boolean | { rejectUnauthorized: boolean } | undefined;
+    try {
+      const parsed = new URL(url);
+      const sslmode = parsed.searchParams.get("sslmode");
+      if (sslmode) parsed.searchParams.delete("sslmode");
+      connectionString = parsed.toString();
+      ssl = sslmode && sslmode !== "disable" ? { rejectUnauthorized: true } : false;
+    } catch {
+      // Not a parseable URL — let pg handle it as-is.
+    }
+    globalForDb.__safariPool = new Pool({ connectionString, ssl });
   }
   return globalForDb.__safariPool;
 }

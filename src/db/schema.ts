@@ -63,6 +63,7 @@ export const reviews = pgTable("reviews", {
     .references(() => listings.id, { onDelete: "cascade" }),
   guestName: text("guest_name").notNull(),
   avatar: text("avatar"),
+  photo: text("photo"), // guest-submitted stay photo (demo: curated Pexels shot)
   rating: integer("rating").notNull(),
   comment: text("comment").notNull(),
   stayedOn: text("stayed_on").notNull(),

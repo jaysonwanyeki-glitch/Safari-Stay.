@@ -97,6 +97,7 @@ export const REGIONS: RegionInfo[] = [
   { name: "Nairobi", blurb: "A buzzing capital with a national park on its doorstep.", parks: ["Nairobi NP", "Karen", "Lang'ata"], image: px(33473218) },
   { name: "Western Kenya", blurb: "Lakeside Kisumu and the highland towns of the West.", parks: ["Kisumu", "Eldoret", "Lake Victoria"], image: px(20653797) },
   { name: "Eastern Kenya", blurb: "Ukambani hills, Thika falls and the Machakos–Kangundo corridor.", parks: ["Machakos", "Thika", "Kangundo"], image: px(5306140) },
+  { name: "North Eastern Kenya", blurb: "Garissa on the Tana — the gateway to Kenya's north-eastern frontier.", parks: ["Garissa", "Tana River", "Dadaab"], image: px(31055413) },
 ];
 
 /** Real weekend getaways from Nairobi — transport + stay budgeted (research 2025–26). */

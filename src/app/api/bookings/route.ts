@@ -16,12 +16,12 @@ export type BookingStatus =
 export type PaymentMethod = "mpesa" | "property";
 
 /** Kenyan phone: +2547XXXXXXXX or 07XXXXXXXX (Safaricom/Airtel/Telkom). */
-export function validKenyanPhone(phone: string): boolean {
+function validKenyanPhone(phone: string): boolean {
   return /^(\+254|0)7\d{8}$/.test(phone.replace(/[\s-]/g, ""));
 }
 
 /** Public display status: stored payment status wins; confirmed stays are date-derived. */
-export function displayStatus(b: {
+function displayStatus(b: {
   status: string;
   checkIn: string;
   checkOut: string;

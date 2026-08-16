@@ -32,16 +32,29 @@ export default function Footer() {
               </Link>
             </li>
             <li>
-              <T k="footer.help" />
+              <Link href="/help" className="transition hover:text-white hover:underline">
+                <T k="footer.help" />
+              </Link>
             </li>
             <li>
-              <T k="footer.safety" />
+              <Link href="/safety" className="transition hover:text-white hover:underline">
+                <T k="footer.safety" />
+              </Link>
             </li>
             <li>
-              <T k="footer.cancelOpts" />
+              <Link href="/cancellations" className="transition hover:text-white hover:underline">
+                <T k="footer.cancelOpts" />
+              </Link>
             </li>
             <li>
-              <T k="footer.report" />
+              <Link href="/report" className="transition hover:text-white hover:underline">
+                <T k="footer.report" />
+              </Link>
+            </li>
+            <li>
+              <Link href="/travel" className="transition hover:text-white hover:underline">
+                <T k="footer.travel" />
+              </Link>
             </li>
           </ul>
         </div>
@@ -65,16 +78,24 @@ export default function Footer() {
           </h4>
           <ul className="space-y-2 text-sm text-sand-300">
             <li>
-              <T k="footer.hosting1" />
+              <Link href="/hosting" className="transition hover:text-white hover:underline">
+                <T k="footer.hosting1" />
+              </Link>
             </li>
             <li>
-              <T k="footer.hosting2" />
+              <Link href="/hosting#resources" className="transition hover:text-white hover:underline">
+                <T k="footer.hosting2" />
+              </Link>
             </li>
             <li>
-              <T k="footer.hosting3" />
+              <Link href="/hosting#community" className="transition hover:text-white hover:underline">
+                <T k="footer.hosting3" />
+              </Link>
             </li>
             <li>
-              <T k="footer.hosting4" />
+              <Link href="/hosting#responsible" className="transition hover:text-white hover:underline">
+                <T k="footer.hosting4" />
+              </Link>
             </li>
           </ul>
         </div>
@@ -90,9 +111,18 @@ export default function Footer() {
           <p>
             <T k="footer.copyright" vars={{ year }} />
           </p>
-          <p>
-            Properties are real &amp; rates are published seasonal rates · Photography via Pexels · Weather © Open-Meteo · FX ©
-            ExchangeRate-API · Maps © OpenStreetMap contributors
+          <p className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1">
+            <Link href="/terms" className="transition hover:text-white hover:underline">
+              Terms
+            </Link>
+            <span aria-hidden>·</span>
+            <Link href="/privacy" className="transition hover:text-white hover:underline">
+              Privacy
+            </Link>
+            <span aria-hidden>·</span>
+            <span>Properties are real &amp; rates are published seasonal rates</span>
+            <span aria-hidden>·</span>
+            <span>Photos © Pexels · Weather © Open-Meteo · FX © ExchangeRate-API · Maps © OpenStreetMap</span>
           </p>
         </div>
       </div>

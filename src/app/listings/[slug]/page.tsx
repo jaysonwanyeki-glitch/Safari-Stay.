@@ -10,6 +10,7 @@ import WishlistButton from "@/components/WishlistButton";
 import Occupancy from "@/components/Occupancy";
 import { MapPinIcon, ShareIcon, StarIcon } from "@/components/icons";
 import { AMENITY_GROUPS, placeLabel, stimaMaji, waLink } from "@/lib/constants";
+import { travelFor } from "@/lib/travel";
 import { formatKes } from "@/lib/format";
 import { T } from "@/components/Localized";
 import {
@@ -70,6 +71,7 @@ export default async function ListingDetailPage({
     latitude: listing.latitude,
     longitude: listing.longitude,
   };
+  const travel = travelFor(listing.slug);
 
   // Plausible rating distribution derived from the average.
   const five = Math.min(95, Math.round((listing.rating - 4) * 100));
@@ -319,6 +321,62 @@ export default async function ListingDetailPage({
         </div>
       </div>
 
+      {/* Getting there — real stage & bus routes */}
+      {travel && (
+        <section className="border-t border-sand-200 py-8">
+          <h2 className="font-display text-xl font-bold">
+            🚌 <T k="detail.gettingThere" />
+          </h2>
+          <p className="mt-1 text-sm text-sand-600">
+            <T k="detail.gettingThereSub" />
+          </p>
+          <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="rounded-xl border border-sand-200 bg-white/70 p-4">
+              <p className="text-xs font-bold uppercase tracking-wide text-sand-500">
+                <T k="detail.stage" />
+              </p>
+              <p className="mt-1 text-sm font-semibold">{travel.stage}</p>
+            </div>
+            <div className="rounded-xl border border-sand-200 bg-white/70 p-4">
+              <p className="text-xs font-bold uppercase tracking-wide text-sand-500">
+                <T k="detail.route" />
+              </p>
+              <p className="mt-1 text-sm font-semibold">{travel.route}</p>
+            </div>
+            <div className="rounded-xl border border-sand-200 bg-white/70 p-4">
+              <p className="text-xs font-bold uppercase tracking-wide text-sand-500">
+                <T k="detail.operators" />
+              </p>
+              <div className="mt-1.5 flex flex-wrap gap-1.5">
+                {travel.operators.map((o) => (
+                  <span key={o} className="rounded-full bg-sand-100 px-2.5 py-0.5 text-xs font-semibold text-ink">
+                    {o}
+                  </span>
+                ))}
+              </div>
+            </div>
+            <div className="rounded-xl border border-sand-200 bg-white/70 p-4">
+              <p className="text-xs font-bold uppercase tracking-wide text-sand-500">
+                <T k="detail.fare" />
+              </p>
+              <p className="mt-1 text-sm font-semibold">{travel.fare}</p>
+            </div>
+          </div>
+          <p className="mt-3 rounded-xl border border-ember-200 bg-ember-50/60 px-4 py-3 text-sm text-sand-800">
+            <span className="font-bold">
+              🛺 <T k="detail.transfer" />:
+            </span>{" "}
+            {travel.transfer}
+          </p>
+          <Link
+            href="/travel"
+            className="mt-3 inline-block text-sm font-semibold text-brand underline hover:text-brand-dark"
+          >
+            <T k="detail.travelMore" />
+          </Link>
+        </section>
+      )}
+
       {/* Map */}
       <section className="border-t border-sand-200 py-8">
         <h2 className="mb-1 font-display text-xl font-bold">
@@ -394,6 +452,15 @@ export default async function ListingDetailPage({
                     ))}
                   </div>
                   <p className="mt-2 text-sm text-sand-800">{r.comment}</p>
+                  {r.photo && (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={r.photo}
+                      alt={`Photo from ${r.guestName}'s stay`}
+                      loading="lazy"
+                      className="mt-3 h-44 w-full max-w-xs rounded-xl border border-sand-200 object-cover"
+                    />
+                  )}
                 </div>
               ))
             )}

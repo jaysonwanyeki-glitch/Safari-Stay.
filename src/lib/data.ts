@@ -62,6 +62,7 @@ export type PublicReview = {
   id: number;
   guestName: string;
   avatar: string | null;
+  photo: string | null;
   rating: number;
   comment: string;
   stayedOn: string;
@@ -266,6 +267,7 @@ export async function getReviewsForListing(listingId: number): Promise<PublicRev
     id: r.id,
     guestName: r.guestName,
     avatar: r.avatar,
+    photo: r.photo,
     rating: r.rating,
     comment: r.comment,
     stayedOn: r.stayedOn,
