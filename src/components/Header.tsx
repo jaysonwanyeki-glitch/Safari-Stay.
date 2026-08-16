@@ -277,6 +277,9 @@ export default function Header() {
           <Link href="/bookings" className="rounded-full px-3 py-2 hover:bg-sand-100">
             {t("nav.bookings")}
           </Link>
+          <Link href="/about" className="rounded-full px-3 py-2 hover:bg-sand-100">
+            {t("nav.about")}
+          </Link>
           <button
             onClick={() => setLocale(locale === "sw" ? "en" : "sw")}
             title={locale === "sw" ? t("header.en") : t("header.sw")}

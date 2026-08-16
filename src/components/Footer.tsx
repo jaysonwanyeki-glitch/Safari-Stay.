@@ -27,6 +27,11 @@ export default function Footer() {
           </h4>
           <ul className="space-y-2 text-sm text-sand-300">
             <li>
+              <Link href="/about" className="transition hover:text-white hover:underline">
+                <T k="footer.about" />
+              </Link>
+            </li>
+            <li>
               <Link href="/bookings" className="transition hover:text-white hover:underline">
                 <T k="nav.bookings" />
               </Link>

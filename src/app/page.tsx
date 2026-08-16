@@ -360,6 +360,48 @@ export default async function HomePage() {
         </div>
       </section>
 
+      {/* Walk with Kenya — community hiking band */}
+      <section className="bg-night text-sand-200">
+        <div className="mx-auto max-w-7xl px-6 py-14">
+          <div className="mb-8 flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-end">
+            <div>
+              <p className="text-xs font-bold uppercase tracking-[0.2em] text-gold-300">
+                <T k="home.walkEyebrow" />
+              </p>
+              <h2 className="font-display mt-2 text-2xl font-bold text-white sm:text-3xl">
+                <T k="home.walkTitle" />
+              </h2>
+              <p className="mt-1 text-sand-400">
+                <T k="home.walkSub" />
+              </p>
+            </div>
+            <Link
+              href="/about"
+              className="shrink-0 rounded-full border border-gold-300/60 px-5 py-2.5 text-sm font-bold text-gold-200 transition hover:bg-gold-300 hover:text-ink"
+            >
+              <T k="home.walkCta" /> →
+            </Link>
+          </div>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+            {[
+              { icon: "🥾", t: "home.walk1t" as const, b: "home.walk1b" as const },
+              { icon: "🏡", t: "home.walk2t" as const, b: "home.walk2b" as const },
+              { icon: "💚", t: "home.walk3t" as const, b: "home.walk3b" as const },
+            ].map((v) => (
+              <div key={v.t} className="rounded-2xl border border-white/10 bg-white/5 p-6">
+                <div className="text-3xl">{v.icon}</div>
+                <h3 className="mt-3 font-bold text-gold-200">
+                  <T k={v.t} />
+                </h3>
+                <p className="mt-1 text-sm text-sand-300">
+                  <T k={v.b} />
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* Host CTA */}
       <section className="brand-bg">
         <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-6 py-12 text-center text-white sm:flex-row sm:text-left">
