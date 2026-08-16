@@ -89,5 +89,8 @@ export const bookings = pgTable("bookings", {
   status: text("status").notNull().default("confirmed"), // pending | confirmed | completed | cancelled
   transferRequested: boolean("transfer_requested").notNull().default(false),
   transferFee: integer("transfer_fee").notNull().default(0),
+  // Multi-stay trip booking: one itinerary ref groups the whole route.
+  itineraryRef: text("itinerary_ref"), // SS-ITN-XXXXXX
+  tripName: text("trip_name"),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
 });

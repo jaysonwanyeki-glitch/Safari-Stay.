@@ -8,6 +8,7 @@ import { clearTrip, setTripItem, setTripName, toggleWishlist, useTrip } from "@/
 import { encodeTrip } from "@/lib/trip";
 import { formatKes } from "@/lib/format";
 import type { PublicListing } from "@/lib/data";
+import TripBookingModal from "./TripBookingModal";
 
 type Row = { id: number; day: number; nights: number; listing: PublicListing };
 type TFunc = (key: TKey, vars?: TVars) => string;
@@ -19,6 +20,7 @@ export default function TripPlanner({ listings }: { listings: PublicListing[] })
   const [name, setName] = useState(trip.name);
   const [shareOpen, setShareOpen] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [bookingOpen, setBookingOpen] = useState(false);
   const committedName = useRef(trip.name);
 
   // Sync the input when a named trip loads from localStorage (post-hydration),
@@ -39,6 +41,7 @@ export default function TripPlanner({ listings }: { listings: PublicListing[] })
   );
 
   const maxDay = rows.reduce((m, r) => Math.max(m, r.day), 0);
+  const scheduled = rows.filter((r) => r.day > 0);
   const unscheduled = rows.filter((r) => r.day === 0);
   const dayMap = new Map<number, Row[]>();
   for (const r of rows) {
@@ -114,8 +117,14 @@ export default function TripPlanner({ listings }: { listings: PublicListing[] })
           </div>
           <div className="flex flex-wrap items-center gap-2">
             <button
-              onClick={() => setShareOpen((o) => !o)}
+              onClick={() => setBookingOpen(true)}
               className="brand-bg flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-bold text-white shadow-md transition hover:opacity-90"
+            >
+              🎒 {t("trip.book")}
+            </button>
+            <button
+              onClick={() => setShareOpen((o) => !o)}
+              className="rounded-full border border-sand-300 px-5 py-2.5 text-sm font-bold text-sand-700 transition hover:border-brand hover:text-brand"
             >
               🔗 {t("trip.share")}
             </button>
@@ -129,6 +138,12 @@ export default function TripPlanner({ listings }: { listings: PublicListing[] })
             </button>
           </div>
         </div>
+
+        {unscheduled.length > 0 && (
+          <p className="mt-3 rounded-lg bg-gold-50 px-3 py-2 text-xs font-semibold text-ink/80">
+            {t("trip.bookNote", { n: unscheduled.length })}
+          </p>
+        )}
 
         <p className="mt-5 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
           <span className="font-extrabold text-ink">{t("trip.stays", { n: rows.length })}</span>
@@ -212,6 +227,15 @@ export default function TripPlanner({ listings }: { listings: PublicListing[] })
             ))}
           </div>
         </div>
+      )}
+
+      {/* Combined itinerary booking */}
+      {bookingOpen && scheduled.length > 0 && (
+        <TripBookingModal
+          rows={scheduled}
+          tripName={trip.name}
+          onClose={() => setBookingOpen(false)}
+        />
       )}
     </div>
   );

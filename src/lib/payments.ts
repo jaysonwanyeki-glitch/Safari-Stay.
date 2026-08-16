@@ -36,11 +36,14 @@ export type StkPushResult =
   | { ok: false; error: string };
 
 /**
- * Trigger an M-Pesa STK push for a booking. In demo mode (no credentials) it
- * returns a simulated success so the flow can be exercised end-to-end.
+ * Trigger an M-Pesa STK push. `apiRef` becomes the IntaSend reference and the
+ * webhook confirms the matching booking(s) when the payment completes — a
+ * single booking uses `SS-<id>`, a whole trip uses `SS-ITN-<code>`. In demo
+ * mode (no credentials) it returns a simulated success so the flow can be
+ * exercised end-to-end.
  */
 export async function initiateStkPush(opts: {
-  bookingId: number;
+  apiRef: string;
   phone: string;
   amountKes: number;
   email?: string;
@@ -48,10 +51,10 @@ export async function initiateStkPush(opts: {
 }): Promise<StkPushResult> {
   const token = process.env.INTASEND_TOKEN;
   const publishableKey = process.env.INTASEND_PUBLISHABLE_KEY;
-  const apiRef = `SS-${opts.bookingId}`;
+  const apiRef = opts.apiRef;
 
   if (!token || !publishableKey) {
-    return { ok: true, simulated: true, invoiceId: `DEMO-${opts.bookingId}` };
+    return { ok: true, simulated: true, invoiceId: `DEMO-${apiRef}` };
   }
 
   const body = {

@@ -112,6 +112,11 @@ Flow: `POST /api/bookings` creates the booking as `pending` →
 on their phone → IntaSend calls `POST /api/payments/webhook` (signature-verified,
 HMAC-SHA256) → booking flips to `confirmed` and the widget updates itself.
 
+Whole-trip bookings work the same way: `POST /api/trip-bookings` creates every
+stay of a planned route under one `SS-ITN-XXXXXX` itinerary ref, one
+`POST /api/payments/initiate` pushes the combined total, and the webhook
+confirms every pending booking of the itinerary on completion.
+
 ## Project structure
 
 ```
@@ -132,6 +137,9 @@ Key API routes:
 | `POST /api/bookings` | Create a booking (M-Pesa → `pending`, property → `confirmed`) |
 | `GET /api/bookings?ref=&email=` | Look up bookings by SS reference / email |
 | `PATCH /api/bookings/:id` | `{action:"confirm"}` (STK) or `{action:"cancel"}` (48h window) |
-| `POST /api/payments/initiate` | Start the M-Pesa STK push for a pending booking (simulated without keys) |
-| `POST /api/payments/webhook` | IntaSend webhook — verifies signature, confirms the booking on completion |
+| `POST /api/payments/initiate` | Start the M-Pesa STK push for a pending booking or whole trip (`itineraryRef`) — simulated without keys |
+| `POST /api/payments/webhook` | IntaSend webhook — verifies signature, confirms the booking / itinerary on completion |
 | `GET /api/payments/status` | `{live: bool}` — whether real M-Pesa is configured |
+| `POST /api/trip-bookings` | Book a whole trip: validates dates + availability, creates every stay under one `SS-ITN-XXXXXX` ref |
+| `POST /api/trip-bookings/confirm` | Demo-mode PIN confirm for an itinerary (live mode uses the webhook) |
+| `GET /api/bookings?ref=SS-ITN-XXXXXX` | Look up every booking of a trip itinerary |

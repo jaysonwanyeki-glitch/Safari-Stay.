@@ -42,6 +42,9 @@ function refToId(ref: string): number | null {
   return Number.isInteger(id) && id > 0 ? id : null;
 }
 
+/** Trip itinerary references look like "SS-ITN-ABCDEF". */
+const ITN_RE = /^SS-ITN-[A-Z0-9]{6}$/i;
+
 /** Look up confirmed bookings by SS reference code and/or the guest email. */
 export async function GET(req: NextRequest) {
   const ref = req.nextUrl.searchParams.get("ref") ?? "";
@@ -52,10 +55,12 @@ export async function GET(req: NextRequest) {
   }
 
   const conditions = [];
-  const id = ref.trim() ? refToId(ref) : null;
-  if (ref.trim() && id === null) {
+  const itn = ref.trim() ? ITN_RE.test(ref.trim()) : false;
+  const id = ref.trim() && !itn ? refToId(ref) : null;
+  if (ref.trim() && !itn && id === null) {
     return Response.json({ error: "That reference code looks invalid" }, { status: 400 });
   }
+  if (itn) conditions.push(eq(bookings.itineraryRef, ref.trim().toUpperCase()));
   if (id !== null) conditions.push(eq(bookings.id, id));
   if (email) conditions.push(ilike(bookings.guestEmail, email));
 
@@ -71,6 +76,8 @@ export async function GET(req: NextRequest) {
       status: bookings.status,
       transferRequested: bookings.transferRequested,
       transferFee: bookings.transferFee,
+      itineraryRef: bookings.itineraryRef,
+      tripName: bookings.tripName,
       checkIn: bookings.checkIn,
       checkOut: bookings.checkOut,
       guests: bookings.guests,
