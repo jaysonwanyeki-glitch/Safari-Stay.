@@ -98,6 +98,7 @@ export const REGIONS: RegionInfo[] = [
   { name: "Western Kenya", blurb: "Lakeside Kisumu and the highland towns of the West.", parks: ["Kisumu", "Eldoret", "Lake Victoria"], image: px(20653797) },
   { name: "Eastern Kenya", blurb: "Ukambani hills, Thika falls and the Machakos–Kangundo corridor.", parks: ["Machakos", "Thika", "Kangundo"], image: px(5306140) },
   { name: "North Eastern Kenya", blurb: "Garissa on the Tana — the gateway to Kenya's north-eastern frontier.", parks: ["Garissa", "Tana River", "Dadaab"], image: px(31055413) },
+  { name: "North Rift", blurb: "Lodwar and the Jade Sea — Turkana's vast frontier of lake and desert.", parks: ["Lake Turkana", "Eliye Springs", "Kalokol"], image: px(20653421) },
 ];
 
 /** Real weekend getaways from Nairobi — transport + stay budgeted (research 2025–26). */

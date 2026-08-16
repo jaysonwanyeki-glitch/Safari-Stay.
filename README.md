@@ -13,7 +13,7 @@ A Kenyan safari accommodation marketplace — beach villas, bush homes, tented c
 - **Airport transfers** — optional pickup add-on priced per destination at checkout.
 - **Group & monthly rates** — negotiated Kenyan pricing: 28+ night stays and 5+ guest groups get published discounts.
 - **WhatsApp "ask the host"** — one tap opens a pre-filled WhatsApp chat with the host's line.
-- **Real data** — 40 real Kenyan properties across 24 counties with published seasonal rates (KES), real coordinates, live weather (Open-Meteo) and live KES⇄USD FX (ExchangeRate-API).
+- **Real data** — 44 real Kenyan properties across 28 counties with published seasonal rates (KES), real coordinates, live weather (Open-Meteo) and live KES⇄USD FX (ExchangeRate-API).
 - **Availability everywhere** — booked dates block the calendar, power the click-to-fill availability strip, and get enforced server-side (409 on clashes; cancelling frees the dates).
 
 ## Getting started
@@ -28,7 +28,7 @@ cp .env.example .env      # then set DATABASE_URL=postgres://...
 
 # 3. Create the schema + seed real data
 npm run db:push           # drizzle-kit push --force (creates tables/columns)
-npm run db:seed           # 40 listings, 72 reviews, 553 bookings
+npm run db:seed           # 44 listings, 77 reviews, 607 bookings
 
 # 4. Run
 npm run dev               # http://localhost:3000
