@@ -4,6 +4,8 @@ import ListingToolbar from "@/components/ListingToolbar";
 import { T } from "@/components/Localized";
 import ResultsMap from "@/components/ResultsMap";
 import { getListings, toMarkers } from "@/lib/data";
+import { resolveSite, siteCoordsFor } from "@/lib/nearby";
+import { findActivityMatches } from "@/lib/activities";
 
 export const dynamic = "force-dynamic";
 
@@ -38,6 +40,13 @@ export default async function ListingsPage({
   const items = await getListings(filter);
   const markers = toMarkers(items);
 
+  // Canonical place name for the heading + radius messaging.
+  const nearPlace = filter.near ? (resolveSite(filter.near)?.name ?? filter.near) : undefined;
+  const nearCoords = filter.near ? siteCoordsFor(filter.near) : undefined;
+  const allBeyondRadius =
+    !!nearPlace && items.length > 0 && items.every((l) => l.distanceKm == null || l.distanceKm > 12);
+  const activityHits = filter.q ? findActivityMatches(filter.q) : [];
+
   const toolbarParams: Record<string, string | undefined> = {
     region: pick("region"),
     type: pick("type"),
@@ -52,8 +61,8 @@ export default async function ListingsPage({
 
   const heading = filter.region
     ? `${filter.region}`
-    : filter.near
-      ? <T k="listings.nearHeading" vars={{ place: filter.near }} />
+    : nearPlace
+      ? <T k="listings.nearHeading" vars={{ place: nearPlace }} />
       : filter.type === "all"
         ? "All stays in Kenya"
         : "Stays in Kenya";
@@ -63,8 +72,24 @@ export default async function ListingsPage({
       <div className="pt-6">
         <h1 className="font-display text-2xl font-bold sm:text-3xl">{heading}</h1>
         <p className="mt-1 text-sand-600">
-          Beachfront villas, bush homes, cottages and hosted camps near Kenya&apos;s wildlife reserves.
+          {nearPlace && nearCoords ? (
+            allBeyondRadius ? (
+              <T k="listings.nearClosest" vars={{ place: nearPlace, n: "10" }} />
+            ) : (
+              <T k="listings.nearWithin" vars={{ place: nearPlace, n: "10" }} />
+            )
+          ) : (
+            "Beachfront villas, bush homes, cottages and hosted camps near Kenya&apos;s wildlife reserves."
+          )}
         </p>
+        {activityHits.length > 0 && (
+          <p className="mt-2 inline-block rounded-full border border-brand/30 bg-ember-50 px-3 py-1.5 text-sm text-brand">
+            🎉 <T k="listings.activityHint" vars={{ n: String(activityHits.length) }} />{" "}
+            <Link href="/activities" className="font-bold underline hover:text-brand-dark">
+              <T k="listings.activityLink" />
+            </Link>
+          </p>
+        )}
       </div>
 
       <ListingToolbar params={toolbarParams} count={items.length} />
@@ -86,7 +111,7 @@ export default async function ListingsPage({
           ) : (
             <div className="grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-2 lg:grid-cols-3">
               {items.map((l) => (
-                <ListingCard key={l.id} listing={l} />
+                <ListingCard key={l.id} listing={l} nearPlace={nearPlace} />
               ))}
             </div>
           )}

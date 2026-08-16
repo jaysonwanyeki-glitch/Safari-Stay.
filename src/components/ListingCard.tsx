@@ -16,7 +16,14 @@ const TIER_ICON: Record<string, string> = {
   luxury: "👑",
 };
 
-export default function ListingCard({ listing }: { listing: PublicListing }) {
+export default function ListingCard({
+  listing,
+  nearPlace,
+}: {
+  listing: PublicListing;
+  /** When set, the card shows its distance from this searched place. */
+  nearPlace?: string;
+}) {
   const t = useT();
   const [index, setIndex] = useState(0);
   const liked = useWishlist(listing.id);
@@ -114,7 +121,12 @@ export default function ListingCard({ listing }: { listing: PublicListing }) {
         <p className="truncate text-sm capitalize text-sand-600">
           {place} · {listing.county ?? listing.region}
         </p>
-        {listing.landmark && (
+        {nearPlace && listing.distanceKm != null && (
+          <p className="truncate text-sm font-semibold text-brand">
+            📍 ~{Math.round(listing.distanceKm)} km from {nearPlace}
+          </p>
+        )}
+        {!nearPlace && listing.landmark && (
           <p className="truncate text-sm font-semibold text-brand">📍 Near {listing.landmark}</p>
         )}
         <p className="truncate text-sm text-sand-600">

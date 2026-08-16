@@ -2,12 +2,19 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
-import { REGIONS } from "@/lib/constants";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useLocale, setLocale, readLocale } from "@/lib/locale";
+import { POPULAR_SEARCHES, routeForQuery, searchSuggestions, type SuggestionKind } from "@/lib/search";
 import { useT } from "./Localized";
 import { GlobeIcon, SearchIcon } from "./icons";
 import Logo from "./Logo";
+
+const KIND_KEY: Record<SuggestionKind, "search.kindRegion" | "search.kindSite" | "search.kindActivity" | "search.kindTown"> = {
+  region: "search.kindRegion",
+  site: "search.kindSite",
+  activity: "search.kindActivity",
+  town: "search.kindTown",
+};
 
 export default function Header() {
   const router = useRouter();
@@ -15,11 +22,14 @@ export default function Header() {
   const locale = useLocale();
   const [open, setOpen] = useState(false);
   const [tab, setTab] = useState<"where" | "when" | "who">("where");
-  const [region, setRegion] = useState("");
+  const [query, setQuery] = useState("");
   const [checkIn, setCheckIn] = useState("");
   const [checkOut, setCheckOut] = useState("");
   const [guests, setGuests] = useState(0);
   const panelRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const suggestions = useMemo(() => searchSuggestions(query), [query]);
 
   // Keep <html lang> in sync with the saved locale on first paint.
   useEffect(() => {
@@ -36,15 +46,35 @@ export default function Header() {
     return () => document.removeEventListener("mousedown", onClick);
   }, [open]);
 
+  useEffect(() => {
+    if (open && tab === "where") inputRef.current?.focus();
+  }, [open, tab]);
+
+  /** Navigate to a search result, carrying over dates & guests. */
+  function go(raw: string) {
+    const [path, hash] = raw.split("#");
+    const url = new URL(path, "http://safaristay.local");
+    if (checkIn) url.searchParams.set("checkIn", checkIn);
+    if (checkOut) url.searchParams.set("checkOut", checkOut);
+    if (guests > 0) url.searchParams.set("guests", String(guests));
+    setOpen(false);
+    router.push(`${url.pathname}${url.search}${hash ? `#${hash}` : ""}`);
+  }
+
   function submit() {
+    if (query.trim()) {
+      go(routeForQuery(query));
+      return;
+    }
     const params = new URLSearchParams();
-    if (region) params.set("region", region);
     if (checkIn) params.set("checkIn", checkIn);
     if (checkOut) params.set("checkOut", checkOut);
     if (guests > 0) params.set("guests", String(guests));
     setOpen(false);
     router.push(`/listings?${params.toString()}`);
   }
+
+  const pillLabel = query.trim() || t("search.anywhere");
 
   return (
     <header className="sticky top-0 z-40 border-b border-sand-200 bg-sand-50/95 backdrop-blur">
@@ -56,7 +86,7 @@ export default function Header() {
           </span>
         </Link>
 
-        <div ref={panelRef} className="relative flex-1 max-w-xl">
+        <div ref={panelRef} className="relative max-w-xl flex-1">
           <button
             onClick={() => {
               setOpen(true);
@@ -64,16 +94,16 @@ export default function Header() {
             }}
             className="mx-auto flex w-full items-center gap-1 rounded-full border border-sand-300 bg-white py-2 pl-6 pr-2 shadow-sm transition hover:border-ember-500/40 hover:shadow-md"
           >
-            <span className="text-sm font-medium">{region || t("search.anywhere")}</span>
-            <span className="mx-2 h-5 w-px bg-sand-200" />
-            <span className="text-sm font-medium text-sand-700">
+            <span className="min-w-0 truncate text-sm font-medium">{pillLabel}</span>
+            <span className="mx-2 h-5 w-px shrink-0 bg-sand-200" />
+            <span className="shrink-0 text-sm font-medium text-sand-700">
               {checkIn && checkOut ? `${checkIn} – ${checkOut}` : t("search.anyWeek")}
             </span>
-            <span className="mx-2 h-5 w-px bg-sand-200" />
-            <span className="text-sm font-medium text-sand-700">
+            <span className="mx-2 h-5 w-px shrink-0 bg-sand-200" />
+            <span className="shrink-0 text-sm font-medium text-sand-700">
               {guests > 0 ? `${guests} ${t("widget.guest")}${guests > 1 ? "s" : ""}` : t("search.addGuests")}
             </span>
-            <span className="brand-bg ml-auto grid h-8 w-8 place-items-center rounded-full text-white">
+            <span className="brand-bg ml-auto grid h-8 w-8 shrink-0 place-items-center rounded-full text-white">
               <SearchIcon className="h-4 w-4" />
             </span>
           </button>
@@ -99,26 +129,70 @@ export default function Header() {
               </div>
 
               {tab === "where" && (
-                <div className="grid grid-cols-2 gap-2">
-                  <button
-                    onClick={() => setRegion("")}
-                    className={`rounded-xl border px-3 py-2 text-left text-sm ${
-                      region === "" ? "border-brand bg-ember-50" : "border-sand-300 hover:border-brand"
-                    }`}
-                  >
-                    🌍 {t("search.anywhereKenya")}
-                  </button>
-                  {REGIONS.map((r) => (
-                    <button
-                      key={r.name}
-                      onClick={() => setRegion(r.name)}
-                      className={`rounded-xl border px-3 py-2 text-left text-sm ${
-                        region === r.name ? "border-brand bg-ember-50" : "border-sand-300 hover:border-brand"
-                      }`}
-                    >
-                      {r.name}
-                    </button>
-                  ))}
+                <div>
+                  <div className="relative">
+                    <SearchIcon className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-sand-400" />
+                    <input
+                      ref={inputRef}
+                      value={query}
+                      onChange={(e) => setQuery(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") submit();
+                      }}
+                      placeholder={t("search.placeholder")}
+                      className="w-full rounded-xl border border-sand-400 py-2.5 pl-10 pr-3 text-sm outline-none focus:border-brand"
+                    />
+                  </div>
+
+                  {query.trim() ? (
+                    <div className="mt-3 max-h-72 overflow-y-auto">
+                      {suggestions.length === 0 ? (
+                        <p className="px-2 py-3 text-sm text-sand-600">{t("search.noResults")}</p>
+                      ) : (
+                        <ul className="space-y-1">
+                          {suggestions.map((s) => (
+                            <li key={s.kind + s.href}>
+                              <button
+                                onClick={() => go(s.href)}
+                                className="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-left transition hover:bg-sand-100"
+                              >
+                                <span className="text-lg">{s.emoji}</span>
+                                <span className="min-w-0 flex-1">
+                                  <span className="block truncate text-sm font-semibold text-ink">{s.label}</span>
+                                  <span className="block truncate text-xs text-sand-500">{s.sub}</span>
+                                </span>
+                                <span className="shrink-0 rounded-full bg-sand-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-sand-500">
+                                  {t(KIND_KEY[s.kind])}
+                                </span>
+                              </button>
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="mt-3">
+                      <p className="text-xs font-bold uppercase tracking-wide text-sand-500">
+                        {t("search.popular")}
+                      </p>
+                      <div className="mt-2 flex flex-wrap gap-2">
+                        {POPULAR_SEARCHES.map((c) => (
+                          <button
+                            key={c.label}
+                            onClick={() => {
+                              setQuery(c.label);
+                              go(c.href);
+                            }}
+                            className="flex items-center gap-1.5 rounded-full border border-sand-300 px-3 py-1.5 text-xs font-bold text-ink transition hover:border-brand hover:bg-ember-50 hover:text-brand"
+                          >
+                            <span>{c.emoji}</span>
+                            {c.label}
+                          </button>
+                        ))}
+                      </div>
+                      <p className="mt-3 text-xs text-sand-500">{t("search.placeholderSub")}</p>
+                    </div>
+                  )}
                 </div>
               )}
 
@@ -173,7 +247,7 @@ export default function Header() {
               <div className="mt-5 flex items-center justify-between">
                 <button
                   onClick={() => {
-                    setRegion("");
+                    setQuery("");
                     setCheckIn("");
                     setCheckOut("");
                     setGuests(0);

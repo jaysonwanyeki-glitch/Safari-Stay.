@@ -353,3 +353,172 @@ export const POPULAR_SITES: { name: string; emoji: string }[] = [
   { name: "Kakamega Forest", emoji: "🌳" },
   { name: "Mount Kenya", emoji: "🏔️" },
 ];
+
+// ---------------------------------------------------------------- Coordinates
+// Approximate real-world coordinates (lat, lng) for every distinct site, keyed
+// by exact site name. These power the radius search ("stays within ~10 km of …")
+// and the distance badges on search results. Values are honest to within a few
+// km — good enough for a 10 km radius, not for survey work.
+
+export const SITE_COORDS: Record<string, { lat: number; lng: number }> = {
+  // Mara & south
+  "Mara River & migration crossings": { lat: -1.44, lng: 35.06 },
+  "Mara Triangle": { lat: -1.37, lng: 34.95 },
+  "Naboisho Conservancy": { lat: -1.37, lng: 35.05 },
+  "Sekenani Gate & Maasai villages": { lat: -1.41, lng: 35.12 },
+  "Oloololo Escarpment": { lat: -1.27, lng: 34.99 },
+  "Musiara Marsh": { lat: -1.35, lng: 35.09 },
+  "Talek River": { lat: -1.39, lng: 35.12 },
+  "Amboseli National Park": { lat: -2.65, lng: 37.25 },
+  "Observation Hill": { lat: -2.65, lng: 37.26 },
+  "Enkongo Narok Swamp": { lat: -2.63, lng: 37.22 },
+  "Kimana Gate & Maasai community lands": { lat: -2.78, lng: 37.55 },
+  "Mzima Springs": { lat: -3.0, lng: 38.0 },
+  "Chaimu Crater & Shetani Lava Flow": { lat: -2.98, lng: 38.0 },
+  "Ngulia Rhino Sanctuary": { lat: -3.03, lng: 38.05 },
+  "Tsavo East — Galana River": { lat: -2.9, lng: 38.6 },
+  // North & Rift
+  "Samburu National Reserve": { lat: -0.65, lng: 37.5 },
+  "Ewaso Ng'iro River": { lat: -0.6, lng: 37.6 },
+  "Buffalo Springs National Reserve": { lat: -0.62, lng: 37.55 },
+  "Shaba National Reserve": { lat: -0.68, lng: 37.75 },
+  "Kalama Conservancy": { lat: -0.5, lng: 37.4 },
+  "Ol Pejeta Conservancy": { lat: 0.05, lng: 36.95 },
+  "Sweetwaters Chimpanzee Sanctuary": { lat: 0.06, lng: 36.96 },
+  "Ngare Ndare Forest": { lat: 0.2, lng: 37.05 },
+  "Lewa Wildlife Conservancy": { lat: 0.15, lng: 37.45 },
+  "Mount Kenya National Park": { lat: -0.15, lng: 37.3 },
+  "Mau Mau Caves": { lat: -0.2, lng: 37.2 },
+  "Nanyuki town & equator line": { lat: 0.01, lng: 37.07 },
+  "Equator line": { lat: 0.01, lng: 37.07 },
+  "Hells Gate National Park": { lat: -0.9, lng: 36.3 },
+  "Crescent Island": { lat: -0.77, lng: 36.38 },
+  "Elsamere Conservation Centre": { lat: -0.78, lng: 36.4 },
+  "Mount Longonot": { lat: -0.91, lng: 36.45 },
+  // Coast
+  "Diani Beach": { lat: -4.32, lng: 39.58 },
+  "Kaya Kinondo Sacred Forest": { lat: -4.39, lng: 39.53 },
+  "Shimba Hills National Reserve": { lat: -4.25, lng: 39.42 },
+  "Colobus Conservation Centre": { lat: -4.32, lng: 39.59 },
+  "Watamu Marine National Park": { lat: -3.35, lng: 40.03 },
+  "Mida Creek": { lat: -3.35, lng: 39.98 },
+  "Gede Ruins": { lat: -3.3, lng: 40.02 },
+  "Turtle nesting beaches": { lat: -3.36, lng: 40.04 },
+  "Lamu Old Town (UNESCO)": { lat: -2.27, lng: 40.9 },
+  "Shela Beach": { lat: -2.3, lng: 40.91 },
+  "Lamu Museum & Fort": { lat: -2.27, lng: 40.9 },
+  "Takwa Ruins, Manda Island": { lat: -2.32, lng: 40.93 },
+  "Fort Jesus": { lat: -4.06, lng: 39.68 },
+  "Mombasa Old Town": { lat: -4.06, lng: 39.68 },
+  "Haller Park": { lat: -3.99, lng: 39.72 },
+  "Bamburi Beach": { lat: -3.98, lng: 39.73 },
+  "Malindi Marine National Park": { lat: -3.2, lng: 40.15 },
+  "Vasco da Gama Pillar": { lat: -3.22, lng: 40.12 },
+  "Mnarani Ruins": { lat: -3.63, lng: 39.85 },
+  "Kilifi Creek": { lat: -3.63, lng: 39.85 },
+  "Bofa Beach": { lat: -3.61, lng: 39.86 },
+  // Nairobi & Eastern
+  "Nairobi National Park": { lat: -1.37, lng: 36.86 },
+  "Giraffe Centre": { lat: -1.33, lng: 36.77 },
+  "David Sheldrick Wildlife Trust": { lat: -1.34, lng: 36.8 },
+  "Karen Blixen Museum": { lat: -1.34, lng: 36.73 },
+  "Ol Donyo Sabuk National Park": { lat: -1.14, lng: 37.25 },
+  "Fourteen Falls": { lat: -1.23, lng: 37.15 },
+  "Machakos People's Park": { lat: -1.52, lng: 37.27 },
+  "Iveti Hills viewpoint": { lat: -1.58, lng: 37.3 },
+  "Kituluni Hill": { lat: -1.48, lng: 37.28 },
+  "Chania Falls": { lat: -1.04, lng: 37.1 },
+  "Aberdare National Park": { lat: -0.4, lng: 36.6 },
+  "Aberdare National Park (Shamata gate)": { lat: -0.15, lng: 36.55 },
+  "Baden-Powell grave & museum": { lat: -0.42, lng: 36.95 },
+  "Chinga Dam": { lat: -0.4, lng: 37.0 },
+  "Thomson's Falls": { lat: -0.03, lng: 36.37 },
+  "Lake Ol'Bolossat": { lat: -0.15, lng: 36.4 },
+  "Meru National Park": { lat: 0.15, lng: 38.15 },
+  "Nyambene Hills": { lat: 0.2, lng: 37.95 },
+  "Meru Museum & Njuri Ncheke": { lat: 0.05, lng: 37.65 },
+  "Seven Forks (Kindaruma Dam)": { lat: -0.8, lng: 37.7 },
+  "Mwea Rice Fields": { lat: -0.75, lng: 37.35 },
+  "Mount Kenya eastern gates": { lat: -0.4, lng: 37.55 },
+  "Samburu National Reserve gateway": { lat: 0.35, lng: 37.58 },
+  "Isiolo town market": { lat: 0.35, lng: 37.58 },
+  // Rift lakes
+  "Lake Nakuru National Park": { lat: -0.37, lng: 36.08 },
+  "Menengai Crater viewpoint": { lat: -0.22, lng: 36.07 },
+  "Hyrax Hill Prehistoric Site": { lat: -0.3, lng: 36.12 },
+  "Lord Egerton Castle": { lat: -0.33, lng: 36.15 },
+  // Western
+  "Kakamega Forest National Reserve": { lat: 0.28, lng: 34.85 },
+  "Isiukhu Falls": { lat: 0.31, lng: 34.88 },
+  "Crying Stone of Ilesi": { lat: -0.23, lng: 34.9 },
+  "Saiwa Swamp National Park": { lat: 1.08, lng: 35.12 },
+  "Mount Elgon National Park": { lat: 1.1, lng: 34.6 },
+  "Kitale Museum": { lat: 1.02, lng: 35.0 },
+  "Lake Victoria & Dunga Hill Pier": { lat: -0.1, lng: 34.75 },
+  "Kisumu Impala Sanctuary": { lat: -0.12, lng: 34.73 },
+  "Kit Mikayi": { lat: -0.05, lng: 34.68 },
+  "Ndere Island National Park": { lat: -0.2, lng: 34.5 },
+  "Iten viewpoint": { lat: 0.67, lng: 35.5 },
+  "Kaptagat Forest": { lat: 0.45, lng: 35.48 },
+  "Eldoret town markets": { lat: 0.52, lng: 35.27 },
+  "Tea estates": { lat: -0.37, lng: 35.28 },
+  "Mau Forest": { lat: -0.5, lng: 35.5 },
+  "Chagaik Arboretum": { lat: -0.3, lng: 35.2 },
+  "Tabaka soapstone carvers": { lat: -0.8, lng: 34.7 },
+  "Kisii town market": { lat: -0.68, lng: 34.77 },
+  "Kiabonyoru Hill viewpoint": { lat: -0.6, lng: 34.8 },
+  "Nandi Hills viewpoint": { lat: 0.1, lng: 35.05 },
+  "Koitalel Samoei Museum": { lat: 0.07, lng: 35.05 },
+  "Kingwal Swamp": { lat: 0.1, lng: 35.1 },
+  // The new frontier
+  "Bour-Algi Giraffe Sanctuary": { lat: -0.45, lng: 39.65 },
+  "Tana River": { lat: -0.5, lng: 39.6 },
+  "Lake Turkana — the Jade Sea": { lat: 3.5, lng: 36.0 },
+  "Eliye Springs": { lat: 3.15, lng: 35.95 },
+  "Kalokol & the Turkana basin": { lat: 3.37, lng: 35.8 },
+  "Wajir town market & camel trade": { lat: 1.75, lng: 40.06 },
+  "Wajir oasis date gardens": { lat: 1.75, lng: 40.06 },
+  "The old fort": { lat: 1.75, lng: 40.06 },
+};
+
+/** Great-circle distance between two points, in kilometres. */
+export function haversineKm(
+  a: { lat: number; lng: number },
+  b: { lat: number; lng: number },
+): number {
+  const R = 6371;
+  const toRad = (d: number) => (d * Math.PI) / 180;
+  const dLat = toRad(b.lat - a.lat);
+  const dLng = toRad(b.lng - a.lng);
+  const s =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos(toRad(a.lat)) * Math.cos(toRad(b.lat)) * Math.sin(dLng / 2) ** 2;
+  return 2 * R * Math.asin(Math.sqrt(s));
+}
+
+/**
+ * Look up coordinates for a site by name — accepts a partial match, so
+ * "Naboisho" finds "Naboisho Conservancy". Returns undefined when unknown.
+ */
+export function siteCoordsFor(query: string): { lat: number; lng: number } | undefined {
+  const term = query.trim().toLowerCase();
+  if (!term) return undefined;
+  const exact = SITE_COORDS[query.trim()];
+  if (exact) return exact;
+  for (const [name, coords] of Object.entries(SITE_COORDS)) {
+    if (name.toLowerCase().includes(term)) return coords;
+  }
+  return undefined;
+}
+
+/**
+ * Resolve a search term to a canonical site name (used for headings and URL
+ * params). Returns the matching directory entry when one exists.
+ */
+export function resolveSite(query: string): DirectorySite | undefined {
+  const term = query.trim().toLowerCase();
+  if (!term) return undefined;
+  const exact = siteDirectory().find((s) => s.name.toLowerCase() === term);
+  if (exact) return exact;
+  return siteDirectory().find((s) => s.name.toLowerCase().includes(term));
+}

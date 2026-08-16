@@ -1,6 +1,8 @@
 import Link from "next/link";
 import InfoPage, { PhotoStrip, RelatedLinks, Section } from "@/components/InfoPage";
-import { MAJOR_STAGES } from "@/lib/travel";
+import StageMap from "@/components/StageMap";
+import { MAJOR_STAGES, stageAnchor } from "@/lib/travel";
+import { T } from "@/components/Localized";
 
 export const metadata = {
   title: "Getting around Kenya — major stages & bus routes · SafariStay",
@@ -39,6 +41,13 @@ export default function TravelPage() {
         </p>
       </Section>
 
+      <Section title="Stages on the map">
+        <p className="mb-4">
+          <T k="travel.mapSub" />
+        </p>
+        <StageMap stages={MAJOR_STAGES} />
+      </Section>
+
       <Section title="Stages by town">
         <div className="overflow-x-auto rounded-2xl border border-sand-200 bg-white shadow-sm">
           <table className="w-full min-w-[760px] border-collapse text-left text-sm">
@@ -53,7 +62,7 @@ export default function TravelPage() {
             </thead>
             <tbody>
               {MAJOR_STAGES.map((s) => (
-                <tr key={s.town} className="border-b border-sand-100 align-top last:border-0 hover:bg-sand-50/60">
+                <tr key={s.town} id={stageAnchor(s.town)} className="scroll-mt-24 border-b border-sand-100 align-top last:border-0 hover:bg-sand-50/60">
                   <td className="px-4 py-3">
                     <p className="font-bold text-ink">{s.town}</p>
                     <p className="text-xs text-sand-600">{s.county}</p>

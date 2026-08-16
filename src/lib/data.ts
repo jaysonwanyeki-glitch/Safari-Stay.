@@ -1,6 +1,6 @@
 import { db } from "@/db";
 import { bookings, listings, reviews } from "@/db/schema";
-import { matchesNear } from "@/lib/nearby";
+import { haversineKm, matchesNear, siteCoordsFor } from "@/lib/nearby";
 import {
   and,
   asc,
@@ -55,6 +55,8 @@ export type PublicListing = {
   rating: number;
   reviewsCount: number;
   featured: boolean;
+  /** Straight-line distance to the searched place (km) — set by radius search. */
+  distanceKm?: number;
 };
 
 export type PublicReview = {
@@ -208,14 +210,41 @@ export async function getListings(filter: ListFilter = {}): Promise<PublicListin
         .some((f) => f.toLowerCase().includes(q)) || matchesNear(l.slug, q),
     );
   }
+  // "Near …" radius search. When the place has coordinates, results are the
+  // stays whose curated nearby-sites list mentions it (the honest "this stay is
+  // beside it" links) PLUS any stay within ~12 km of the place — sorted by
+  // distance, so the closest appear first. If nothing is within range, we fall
+  // back to the closest stays in the whole catalogue so the search still helps.
   const near = filter.near?.trim().toLowerCase();
   if (near) {
-    items = items.filter(
+    const coords = siteCoordsFor(near);
+    const withDist = items.map((l) => ({
+      ...l,
+      distanceKm: coords ? haversineKm(coords, { lat: l.latitude, lng: l.longitude }) : undefined,
+    }));
+    const curated = withDist.filter(
       (l) =>
         matchesNear(l.slug, near) ||
         (l.landmark ?? "").toLowerCase().includes(near) ||
         l.locationName.toLowerCase().includes(near),
     );
+    if (coords) {
+      const seen = new Set(curated.map((l) => l.id));
+      const within = withDist.filter(
+        (l) => !seen.has(l.id) && l.distanceKm != null && l.distanceKm <= 12,
+      );
+      let result = [...curated, ...within];
+      if (result.length === 0) {
+        // Nothing within ~12 km — suggest the closest stays to the place.
+        result = [...withDist]
+          .sort((a, b) => (a.distanceKm ?? 1e9) - (b.distanceKm ?? 1e9))
+          .slice(0, 5);
+      }
+      result.sort((a, b) => (a.distanceKm ?? 1e9) - (b.distanceKm ?? 1e9));
+      items = result;
+    } else {
+      items = curated;
+    }
   }
 
   return items;
