@@ -11,6 +11,9 @@ import Occupancy from "@/components/Occupancy";
 import { MapPinIcon, ShareIcon, StarIcon } from "@/components/icons";
 import { AMENITY_GROUPS, placeLabel, stimaMaji, waLink } from "@/lib/constants";
 import { travelFor } from "@/lib/travel";
+import { nearbySitesFor } from "@/lib/nearby";
+import { paymentsLive } from "@/lib/payments";
+import type { TKey } from "@/lib/i18n";
 import { formatKes } from "@/lib/format";
 import { T } from "@/components/Localized";
 import {
@@ -72,6 +75,7 @@ export default async function ListingDetailPage({
     longitude: listing.longitude,
   };
   const travel = travelFor(listing.slug);
+  const localSites = nearbySitesFor(listing.slug);
 
   // Plausible rating distribution derived from the average.
   const five = Math.min(95, Math.round((listing.rating - 4) * 100));
@@ -312,7 +316,7 @@ export default async function ListingDetailPage({
           <div className="sticky top-24">
             <BookingWidget listing={listing} />
             <p className="mt-3 text-center text-xs text-sand-600">
-              <T k="widget.demoNote" />
+              <T k={paymentsLive() ? "widget.liveNote" : "widget.demoNote"} />
             </p>
           </div>
           <div className="mt-6">
@@ -374,6 +378,36 @@ export default async function ListingDetailPage({
           >
             <T k="detail.travelMore" />
           </Link>
+        </section>
+      )}
+
+      {/* Conservancies & local sites nearby */}
+      {localSites && localSites.length > 0 && (
+        <section className="border-t border-sand-200 py-8">
+          <h2 className="font-display text-xl font-bold">
+            🦁 <T k="detail.nearbySites" />
+          </h2>
+          <p className="mt-1 text-sm text-sand-600">
+            <T k="detail.nearbySitesSub" />
+          </p>
+          <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {localSites.map((s) => (
+              <div key={s.name} className="rounded-xl border border-sand-200 bg-white/70 p-4">
+                <div className="flex items-start justify-between gap-2">
+                  <span className="text-2xl">{s.emoji}</span>
+                  <span className="rounded-full bg-ember-50 px-2.5 py-0.5 text-[11px] font-bold text-brand">
+                    <T k={`site.${s.type}` as TKey} />
+                  </span>
+                </div>
+                <p className="mt-2 text-sm font-bold leading-snug">{s.name}</p>
+                <p className="mt-0.5 text-xs font-semibold text-brand">📍 {s.distance}</p>
+                <p className="mt-1.5 text-xs leading-snug text-sand-600">{s.blurb}</p>
+              </div>
+            ))}
+          </div>
+          <p className="mt-4 rounded-xl border border-sand-200 bg-sand-50 px-4 py-3 text-xs text-sand-700">
+            ℹ️ <T k="detail.nearbySitesNote" />
+          </p>
         </section>
       )}
 

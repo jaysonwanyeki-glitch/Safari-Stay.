@@ -71,6 +71,10 @@ export default function BookingWidget({ listing }: { listing: PublicListing }) {
   const [error, setError] = useState("");
   const [avail, setAvail] = useState<Availability | null>(null);
   const [confirming, setConfirming] = useState(false);
+  // M-Pesa STK state: the backend initiates the push; simulated in demo mode.
+  const [stkSent, setStkSent] = useState(false);
+  const [stkLive, setStkLive] = useState(false);
+  const [stkError, setStkError] = useState("");
 
   useEffect(() => {
     let active = true;
@@ -243,6 +247,72 @@ export default function BookingWidget({ listing }: { listing: PublicListing }) {
     }
   }
 
+  const pendingBooking = booking && booking.status === "pending";
+  const bookingId = booking ? booking.id : null;
+
+  // Kick off the M-Pesa STK push through the backend as soon as a pending
+  // M-Pesa booking exists. With no IntaSend keys the API returns a simulated
+  // success and the demo "I've entered my PIN" flow takes over.
+  useEffect(() => {
+    if (!pendingBooking || stkSent) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch("/api/payments/initiate", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ bookingId }),
+        });
+        const data = await res.json().catch(() => ({}));
+        if (cancelled) return;
+        if (!res.ok) {
+          setStkError(data.error ?? "Could not start the M-Pesa payment.");
+          return;
+        }
+        setStkSent(true);
+        setStkLive(!data.simulated);
+      } catch {
+        if (!cancelled) setStkError("Could not reach the payment service. Please try again.");
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [pendingBooking, stkSent, bookingId]);
+
+  // Live mode: poll the booking until the IntaSend webhook confirms the
+  // payment (about 5–30 s after the guest enters their PIN).
+  useEffect(() => {
+    if (!pendingBooking || !stkSent || !stkLive || bookingId === null) return;
+    let cancelled = false;
+    let tries = 0;
+    const iv = setInterval(async () => {
+      tries += 1;
+      try {
+        const res = await fetch(`/api/bookings?ref=${bookingRef(bookingId)}`);
+        const data = await res.json().catch(() => ({}));
+        const found = (data.bookings ?? []).find((b: { id: number }) => b.id === bookingId);
+        if (found && found.status !== "pending") {
+          clearInterval(iv);
+          if (!cancelled) {
+            setBooking((prev) =>
+              prev && found.status === "confirmed" ? { ...prev, status: "confirmed" } : prev,
+            );
+          }
+        } else if (tries >= 36) {
+          // ~3 minutes — give up polling; the guest can check My bookings.
+          clearInterval(iv);
+        }
+      } catch {
+        // network hiccup — keep polling
+      }
+    }, 5000);
+    return () => {
+      cancelled = true;
+      clearInterval(iv);
+    };
+  }, [pendingBooking, stkSent, stkLive, bookingId]);
+
   const nightly = useMemo(() => listing.pricePerNight, [listing.pricePerNight]);
 
   if (status === "success" && booking) {
@@ -274,17 +344,30 @@ export default function BookingWidget({ listing }: { listing: PublicListing }) {
 
         {pending && (
           <>
-            <p className="mt-2 text-sm text-ink/80">
-              {t("widget.pendingBody", { phone: booking.phone })}
-            </p>
-            <button
-              onClick={simulateStk}
-              disabled={confirming}
-              className="mt-4 w-full rounded-xl bg-emerald-600 py-3 text-sm font-bold text-white shadow-lg transition hover:bg-emerald-700 disabled:opacity-50"
-            >
-              {confirming ? "…" : t("widget.pendingSimulate")}
-            </button>
-            <p className="mt-2 text-[11px] text-ink/60">{t("widget.demoStkNote")}</p>
+            {stkError && <p className="mt-2 text-sm font-semibold text-brand">{stkError}</p>}
+            {!stkSent ? (
+              <p className="mt-2 text-xs text-ink/70">{t("widget.stkChecking")}</p>
+            ) : stkLive ? (
+              <>
+                <p className="mt-2 text-sm text-ink/80">{t("widget.stkSent", { phone: booking.phone })}</p>
+                <p className="mt-1 text-xs text-ink/60">{t("widget.stkChecking")}</p>
+                <span className="mx-auto mt-3 block h-5 w-5 animate-spin rounded-full border-2 border-emerald-600 border-t-transparent" />
+              </>
+            ) : (
+              <>
+                <p className="mt-2 text-sm text-ink/80">
+                  {t("widget.pendingBody", { phone: booking.phone })}
+                </p>
+                <button
+                  onClick={simulateStk}
+                  disabled={confirming}
+                  className="mt-4 w-full rounded-xl bg-emerald-600 py-3 text-sm font-bold text-white shadow-lg transition hover:bg-emerald-700 disabled:opacity-50"
+                >
+                  {confirming ? "…" : t("widget.pendingSimulate")}
+                </button>
+                <p className="mt-2 text-[11px] text-ink/60">{t("widget.demoStkNote")}</p>
+              </>
+            )}
           </>
         )}
 
@@ -330,6 +413,9 @@ export default function BookingWidget({ listing }: { listing: PublicListing }) {
             setCode("");
             setVerified(false);
             setCodeError("");
+            setStkSent(false);
+            setStkLive(false);
+            setStkError("");
           }}
           className="mt-4 rounded-xl border border-emerald-300 px-4 py-2 text-sm font-semibold text-ink hover:bg-emerald-100"
         >
