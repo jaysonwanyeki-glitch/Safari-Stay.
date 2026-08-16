@@ -6,7 +6,8 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useLocale, setLocale, readLocale } from "@/lib/locale";
 import { POPULAR_SEARCHES, routeForQuery, searchSuggestions, type SuggestionKind } from "@/lib/search";
 import { useT } from "./Localized";
-import { GlobeIcon, SearchIcon } from "./icons";
+import { GlobeIcon, HeartIcon, SearchIcon } from "./icons";
+import { useTrip } from "@/lib/wishlist";
 import Logo from "./Logo";
 
 const KIND_KEY: Record<SuggestionKind, "search.kindRegion" | "search.kindSite" | "search.kindActivity" | "search.kindTown"> = {
@@ -20,6 +21,7 @@ export default function Header() {
   const router = useRouter();
   const t = useT();
   const locale = useLocale();
+  const trip = useTrip();
   const [open, setOpen] = useState(false);
   const [tab, setTab] = useState<"where" | "when" | "who">("where");
   const [query, setQuery] = useState("");
@@ -276,6 +278,19 @@ export default function Header() {
           </Link>
           <Link href="/bookings" className="rounded-full px-3 py-2 hover:bg-sand-100">
             {t("nav.bookings")}
+          </Link>
+          <Link
+            href="/trip"
+            aria-label={t("nav.trip")}
+            title={t("nav.trip")}
+            className="relative grid h-10 w-10 place-items-center rounded-full transition hover:bg-sand-100"
+          >
+            <HeartIcon filled={trip.items.length > 0} className="h-5 w-5" />
+            {trip.items.length > 0 && (
+              <span className="brand-bg absolute -right-0.5 -top-0.5 grid h-4 min-w-4 place-items-center rounded-full px-1 text-[10px] font-bold text-white">
+                {trip.items.length}
+              </span>
+            )}
           </Link>
           <Link href="/about" className="rounded-full px-3 py-2 hover:bg-sand-100">
             {t("nav.about")}

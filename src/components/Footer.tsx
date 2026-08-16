@@ -37,6 +37,11 @@ export default function Footer() {
               </Link>
             </li>
             <li>
+              <Link href="/trip" className="transition hover:text-white hover:underline">
+                <T k="footer.trip" />
+              </Link>
+            </li>
+            <li>
               <Link href="/help" className="transition hover:text-white hover:underline">
                 <T k="footer.help" />
               </Link>
